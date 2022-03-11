@@ -46,6 +46,7 @@ describe("Woofy NFT contract should perform correctly", () => {
         const { nftImageIpfsPath, tokenId, nftImageContent } = await mintNft(signers[0], 0.001);
 
         // Token URI should be correct
+        assert.notEqual(tokenId.toNumber(), -1, "Token ID should not be negative!");
         const tokenMetadataUri = await contract.tokenURI(tokenId);
         const tokenMetadata = JSON.parse((Buffer.from(tokenMetadataUri.split("base64,")[1], "base64")).toString());
         assert.includeMembers(Object.keys(tokenMetadata), ["name", "description", "attributes", "image"], "NFT Metadata is missing some properties!");
