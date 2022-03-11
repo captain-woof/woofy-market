@@ -9,15 +9,16 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "./Utils.sol";
 
 contract Woofy is ERC721URIStorage {
-    /* NFT price */
-    uint256 price = 0.001 ether;
+    /* CONSTANTS */
+    uint256 constant PRICE = 0.001 ether; // NFT PRICE
+    uint256 constant COOLDOWN_PERIOD = 15 minutes; // Cooldown period, before which a signer cannot mint
 
     /* Counter for TokenId */
     using Counters for Counters.Counter;
     Counters.Counter private _tokenId;
 
     /* Mapping to store info about new NFTs: whether their metadata should be changed */
-    mapping(address => uint256) newMintAddressToId;
+    mapping(address => IdAndTime) newMintAddressToIdAndTime;
 
     /* Constructor */
     constructor() payable ERC721("WOOFY", "WFY") {
@@ -28,17 +29,29 @@ contract Woofy is ERC721URIStorage {
     function createNFT() external payable {
         // Check if user is paying the correct amount to purchase
         require(
-            msg.value == price,
+            msg.value == PRICE,
             strcat(
                 "INCORRECT AMOUNT OF WEI SENT! SEND ",
-                Strings.toString(price)
+                Strings.toString(PRICE)
             )
+        );
+
+        // Check if an exisiting incomplete NFT is in progress or cooldown is not over yet
+        require(
+            (newMintAddressToIdAndTime[msg.sender].tokenId == 0 ||
+                block.timestamp -
+                    newMintAddressToIdAndTime[msg.sender].timestamp >=
+                COOLDOWN_PERIOD),
+            "SIGNER HAS A PENDING NFT! WAITING FOR COOLDOWN."
         );
 
         // Mint token
         uint256 newTokenId = _tokenId.current();
         _safeMint(msg.sender, newTokenId);
-        newMintAddressToId[msg.sender] = newTokenId;
+        newMintAddressToIdAndTime[msg.sender] = IdAndTime(
+            newTokenId,
+            block.timestamp
+        );
 
         // Increment token id
         _tokenId.increment();
@@ -46,16 +59,21 @@ contract Woofy is ERC721URIStorage {
 
     /* Returns new, incomplete token id that a signer may have */
     function getNewTokenId() public view returns (uint256) {
-        return newMintAddressToId[msg.sender];
+        return newMintAddressToIdAndTime[msg.sender].tokenId;
     }
 
     /* Sets URI on newly created NFT */
     function setNewTokenURI(string memory _nftImageURI) external {
         // Checks to make sure URI of existing NFTs are not modified, only a new one
-        uint256 newTokenId = newMintAddressToId[msg.sender];
+        uint256 newTokenId = newMintAddressToIdAndTime[msg.sender].tokenId;
         require(
             newTokenId != 0,
             "SIGNER DOES NOT HAVE A NEWLY MINTED, INCOMPLETE NFT!"
+        );
+        require(
+            block.timestamp - newMintAddressToIdAndTime[msg.sender].timestamp <
+                COOLDOWN_PERIOD,
+            "SIGNER HAS NO PENDING NFT!"
         );
 
         // Create new token's URI
@@ -79,6 +97,6 @@ contract Woofy is ERC721URIStorage {
 
         // Set new token's uri
         _setTokenURI(newTokenId, tokenURI);
-        delete newMintAddressToId[msg.sender];
+        delete newMintAddressToIdAndTime[msg.sender];
     }
 }

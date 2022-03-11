@@ -62,4 +62,10 @@ describe("Woofy NFT contract should perform correctly", () => {
         assert.equal(nftImageContentIpfs, nftImageContent, "NFT image content was not stored correctly!");
     });
 
+    it("NFTs must be unique", async () => {
+        const nftDetails1 = await mintNft(signers[1], 0.001);
+        const nftDetails2 = await mintNft(signers[2], 0.001);
+
+        assert.notDeepEqual(nftDetails1, nftDetails2, "NFTs must be unique!");
+    })
 });
