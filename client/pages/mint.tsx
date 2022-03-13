@@ -1,9 +1,9 @@
 import { NextPage } from "next";
 
-const Woofy: NextPage = () => {
+const Mint: NextPage = () => {
     return (
         <></>
     )
 }
 
-export default Woofy;
+export default Mint;

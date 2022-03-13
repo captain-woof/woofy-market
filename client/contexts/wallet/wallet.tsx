@@ -12,7 +12,8 @@ export const WalletContext = createContext<WalletContext>({
     signerAddr: "",
     progress: false,
     error: false,
-    setup: async () => { }
+    handleConnect: async () => { },
+    isConnected: false
 });
 
 export interface WalletContext {
@@ -23,7 +24,8 @@ export interface WalletContext {
     signerAddr: string
     progress: boolean
     error: boolean
-    setup: () => Promise<void>
+    handleConnect: () => Promise<void>
+    isConnected: boolean
 }
 
 export const WalletProvider = ({ children }: { children: ReactNode }) => {
@@ -40,80 +42,103 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     const [error, setError] = useState<boolean>(false);
 
     // Function to start setup
-    const setup = useCallback(async () => {
-        if (!("ethereum" in window && !!window.ethereum.request)) {
-            toast({
-                title: "METAMASK NOT FOUND",
-                description: "Please install the Metamask extension to continue.",
-                status: "error"
-            })
-        } else {
-            try {
-                setProgress(true);
-                setError(false);
-                const [newSignerAddr] = await window.ethereum.request({ method: "eth_requestAccounts" }) as Array<string>;
-                setSignerAddr(newSignerAddr);
-
-                const newProvider = new ethers.providers.Web3Provider(window.ethereum);
-                setProvider(newProvider);
-
-                const newSigner = newProvider.getSigner();
-                setSigner(newSigner);
-
-            } catch (e) {
-                setError(true);
-                setProgress(false);
-                console.error("ERROR WHILE SETTING UP PROVIDER AND SIGNER", e);
-            }
-        }
-    }, [toast])
-
-    // Setup provider and signer update listener, and also start connection IF wallet is already connected
-    useEffect(() => {
-        (async () => {
-            const [newSignerAddr] = await window.ethereum.request({ method: "eth_accounts" }) as Array<string>;
-            if (!!newSignerAddr && newSignerAddr !== "") { // If wallet is pre-connected
-                await setup();
-                dev.log("PRE CONNECTED SETUP DONE!");
-            }
-        })()
-
-        async function handleAccountChange() {
-            const [newSignerAddr] = await window.ethereum.request({ method: "eth_accounts" }) as Array<string>;
-            if (!newSignerAddr) { // If wallet is disconnected manually
-                setNftContract(null);
-                setNftContractConnToSigner(null);
-                setSigner(null);
-                setSignerAddr("");
-            } else { // If another account was chosen
-                await setup();
-            }
-        }
-
-        window.ethereum.on("accountsChanged", handleAccountChange);
-        return () => { window.ethereum.removeListener("accountsChanged", handleAccountChange) };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    // Setup NFT contract when provider and signer have been setup
-    useEffect(() => {
-        (async () => {
-            if (!!provider && !!signer) {
+    const setup = useCallback(async (typeOfSetup: "connect" | "disconnect" | "change") => {
+        if (typeOfSetup === "connect" || typeOfSetup === "change") { // Handle connecting wallet and contracts
+            if (!("ethereum" in window && !!window.ethereum.request)) {
+                toast({
+                    title: "METAMASK NOT FOUND",
+                    description: "Please install the Metamask extension to continue.",
+                    status: "error"
+                });
+            } else {
                 try {
-                    const newNftContract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS as string, NFTContractInterface.abi, provider as ethers.providers.Provider);
+                    setProgress(true);
+                    setError(false);
+
+                    const [newSignerAddr] = await window.ethereum.request({ method: "eth_requestAccounts" }) as Array<string>;
+                    setSignerAddr(newSignerAddr);
+
+                    const newProvider = new ethers.providers.Web3Provider(window.ethereum);
+                    setProvider(newProvider);
+
+                    const newSigner = newProvider.getSigner();
+                    setSigner(newSigner);
+
+                    const newNftContract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS as string, NFTContractInterface.abi, newProvider as ethers.providers.Provider);
                     setNftContract(newNftContract);
 
-                    const newNftConnToSigner = newNftContract.connect(signer as Signer);
+                    const newNftConnToSigner = newNftContract.connect(newSigner as Signer);
                     setNftContractConnToSigner(newNftConnToSigner);
+
+                    toast({
+                        title: typeOfSetup === "change" ? "ACCOUNT CHANGED" : "WALLET CONNECTED",
+                        description: typeOfSetup === "change" ? "Switched to another account!" : "Your wallet is connected! Let's goooo!",
+                        status: typeOfSetup === "change" ? "info" : "success"
+                    });
+                    dev.log(typeOfSetup === "change" ? "ACCOUNT CHANGED!" : "WALLET CONNECTED");
+
                 } catch (e) {
                     setError(true);
-                    console.error("ERROR WHILE SETTING UP NFT CONTRACT CONNECTIONS", e);
+                    dev.error("ERROR WHILE SETTING UP WALLET", e);
+                    toast({
+                        title: "CONNECTION ERROR",
+                        description: "Your wallet could not be connected! Try again.",
+                        status: "error"
+                    });
                 } finally {
                     setProgress(false);
                 }
             }
+        } else {
+            setProvider(null);
+            setNftContract(null);
+            setNftContractConnToSigner(null);
+            setSigner(null);
+            setSignerAddr("");
+            toast({
+                title: "WALLET DISCONNECTED",
+                description: "Your wallet is now disconnected!",
+                status: "warning"
+            });
+            dev.log("WALLET DISCONNECTED");
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    // Function that the Connect button will invoke
+    const handleConnect = useCallback(async () => {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+    }, [])
+
+    // Setup provider and signer update listener
+    useEffect(() => {
+        const handleAccountChange = async () => {
+            const [newSignerAddr] = await window.ethereum.request({ method: "eth_accounts" }) as Array<string>;
+
+            if (newSignerAddr !== signerAddr) {
+                if (!!newSignerAddr && newSignerAddr !== "") { // New account was selected
+                    await setup(signerAddr !== "" ? "change" : "connect");
+
+                } else if (!newSignerAddr || newSignerAddr === "") { // All accounts disconnected
+                    await setup("disconnect");
+                }
+            }
+        }
+        window.ethereum.on("accountsChanged", handleAccountChange);
+        return () => { window.ethereum.removeListener("accountsChanged", handleAccountChange) };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [signerAddr])
+
+    // Handle wallet pre-connection on page load if wallet is already connected
+    useEffect(() => {
+        (async () => {
+            const [newSignerAddr] = await window.ethereum.request({ method: "eth_accounts" }) as Array<string>;
+            if (!!newSignerAddr && newSignerAddr !== "") { // If wallet is pre-connected
+                await setup("connect");
+            }
         })()
-    }, [provider, signer])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
 
     return (
         <WalletContext.Provider value={{
@@ -124,7 +149,8 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
             signerAddr,
             progress,
             error,
-            setup
+            handleConnect,
+            isConnected: signerAddr !== ""
         }}>
             {children}
         </WalletContext.Provider>
