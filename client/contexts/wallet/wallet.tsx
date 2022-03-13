@@ -107,7 +107,21 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
 
     // Function that the Connect button will invoke
     const handleConnect = useCallback(async () => {
-        await window.ethereum.request({ method: "eth_requestAccounts" });
+        try {
+            setProgress(true);
+            await window.ethereum.request({ method: "eth_requestAccounts" });
+        } catch (e: any) {
+            if (e.message === "User rejected the request.") {
+                toast({
+                    title: "REQUEST REJECTED",
+                    description: "You must accept the connection request!",
+                    status: "error"
+                });
+            }
+        } finally {
+            setProgress(false);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // Setup provider and signer update listener
