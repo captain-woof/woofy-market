@@ -68,4 +68,22 @@ describe("Woofy NFT contract should perform correctly", () => {
 
         assert.notDeepEqual(nftDetails1, nftDetails2, "NFTs must be unique!");
     })
+
+    it("Signer's stored NFTs' metadata should return correctly", async () => {
+        const signer = signers[4];
+        const { tokenId: tokenId1, nftImageIpfsPath: nftImageIpfsPath1 } = await mintNft(signer, "0.001");
+        const { tokenId: tokenId2, nftImageIpfsPath: nftImageIpfsPath2 } = await mintNft(signer, "0.001");
+        const contractConn = await contract.connect(signer);
+        let nftsOwned = await contractConn.getAllNftsOwned();
+        nftsOwned = nftsOwned.map((nftOwned) => ({
+            tokenId: nftOwned.tokenID,
+            ...(JSON.parse((Buffer.from(nftOwned.tokenURI.split("base64,")[1], "base64")).toString()))
+        }));
+
+        assert.equal(nftsOwned[0].tokenId.toNumber(), tokenId1.toNumber(), "Signer's stored NFT's ID was not returned correctly!");
+        assert.equal(nftsOwned[1].tokenId.toNumber(), tokenId2.toNumber(), "Signer's stored NFT's ID was not returned correctly!");
+
+        assert.equal(nftsOwned[0].image, `ipfs://${nftImageIpfsPath1}`, "Signer's stored NFT's image path was not returned correctly!");
+        assert.equal(nftsOwned[1].image, `ipfs://${nftImageIpfsPath2}`, "Signer's stored NFT's image path was not returned correctly!");
+    })
 });

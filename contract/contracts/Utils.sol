@@ -9,3 +9,8 @@ struct IdAndTime {
     uint256 tokenId;
     uint256 timestamp;
 }
+
+struct NFT {
+    uint256 tokenID;
+    string tokenURI;
+}
