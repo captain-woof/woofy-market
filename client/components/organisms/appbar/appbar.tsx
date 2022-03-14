@@ -1,7 +1,7 @@
 import { Flex, useColorModeValue, Heading, Link as ChakraLink, Box, HStack, IconButton, useColorMode, Button, Show, Menu, MenuButton, MenuList, MenuItem, Hide, MenuDivider, MenuGroup } from "@chakra-ui/react";
 import NextLink from "next/link";
 import { MoonIcon, SunIcon } from "@chakra-ui/icons";
-import { useWallet } from "../../hooks/useWallet";
+import { useWallet } from "../../../hooks/useWallet";
 import { IoWalletSharp as WalletOpenIcon } from "react-icons/io5";
 import { FaWallet as WalletClosedIcon } from "react-icons/fa";
 import { CgMenuGridO as MenuIcon } from "react-icons/cg";
@@ -31,7 +31,7 @@ export default function AppBar() {
     }, [])
 
     return (
-        <Flex background={backgroundColor} width="full" position="sticky" top={0} left={0} as="header" minHeight="14" shadow="lg" paddingY="4" paddingX="8" alignItems="center">
+        <Flex background={backgroundColor} width="full" position="sticky" top={0} left={0} as="header" minHeight="14" shadow="lg" paddingY="4" paddingX="8" alignItems="center" zIndex={99999}>
 
             {/* App logo */}
             <NextLink passHref href="/"><ChakraLink>
