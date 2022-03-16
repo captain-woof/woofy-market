@@ -4,15 +4,17 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./Utils.sol";
 
-contract Woofy is ERC721URIStorage, ERC721Enumerable {
+contract Woofy is ERC721URIStorage, ERC721Enumerable, Ownable {
     /* CONSTANTS */
-    uint256 constant PRICE = 0.001 ether; // NFT PRICE
-    uint256 constant COOLDOWN_PERIOD = 15 minutes; // Cooldown period, before which a signer cannot mint
+    uint256 public immutable PRICE; // NFT PRICE
+    uint256 public immutable COOLDOWN_PERIOD; // Cooldown period, before which a signer cannot mint
+    uint256 public immutable MAX_SUPPLY; // Max number of WOOFYs that can be created
 
     /* Counter for TokenId */
     using Counters for Counters.Counter;
@@ -21,13 +23,37 @@ contract Woofy is ERC721URIStorage, ERC721Enumerable {
     /* Mapping to store info about new NFTs: whether their metadata should be changed */
     mapping(address => IdAndTime) newMintAddressToIdAndTime;
 
-    /* Constructor */
-    constructor() payable ERC721("WOOFY", "WFY") {
+    /* Mapping to store info about minted WOOFY's sale: maps tokenID to info */
+    mapping(uint256 => NFT_SALE_INFO) woofySaleInfo;
+
+    /* Modifier to check if token id is valid (above 0) */
+    modifier isTokenIdValid(uint256 _tokenIdToCheck){
+        require(_tokenIdToCheck > 0, "INVALID TOKEN ID");
+        _;
+    }
+
+    /* Constructor - (price, cooldown period secs, max supply) */
+    constructor(
+        uint256 _price,
+        uint256 _cooldownPeriod,
+        uint256 _maxSupply
+    ) payable ERC721("WOOFY", "WFY") {
+        PRICE = _price;
+        COOLDOWN_PERIOD = _cooldownPeriod;
+        MAX_SUPPLY = _maxSupply;
         _tokenId.increment();
     }
 
     /* Creates a new NFT */
     function createNFT() external payable {
+        uint256 newTokenId = _tokenId.current();
+
+        // Check if anymore NFTs can be created
+        require(
+            newTokenId <= MAX_SUPPLY,
+            "MAX NUMBER OF WOOFYs IN CIRCULATION ALREADY!"
+        );
+
         // Check if user is paying the correct amount to purchase
         require(
             msg.value == PRICE,
@@ -47,12 +73,21 @@ contract Woofy is ERC721URIStorage, ERC721Enumerable {
         );
 
         // Mint token
-        uint256 newTokenId = _tokenId.current();
         _safeMint(msg.sender, newTokenId);
         newMintAddressToIdAndTime[msg.sender] = IdAndTime(
             newTokenId,
             block.timestamp
         );
+        woofySaleInfo[newTokenId] = NFT_SALE_INFO(
+            PRICE,
+            NFT_STATUS.NOT_FOR_SALE
+        );
+        (bool success, ) = payable(owner()).call{value: PRICE}("");
+        require(
+            success,
+            "CONTRACT OWNER COULD NOT BE TRANSFERRED THE PRICE FOR WOOFY!"
+        );
+        approve(address(this), newTokenId);
 
         // Increment token id
         _tokenId.increment();
@@ -102,16 +137,52 @@ contract Woofy is ERC721URIStorage, ERC721Enumerable {
     }
 
     /* Retrieves NFTs owned by a signer */
-    function getAllNftsOwned() public view returns(NFT[] memory) {
+    function getAllNftsOwned() public view returns (NFT[] memory) {
         uint256 numOfNftsOwned = balanceOf(msg.sender);
         NFT[] memory nfts = new NFT[](numOfNftsOwned);
         uint256 tokenId = 0;
-        for(uint256 i = 0; i < numOfNftsOwned; i++){
+        for (uint256 i = 0; i < numOfNftsOwned; i++) {
             tokenId = tokenOfOwnerByIndex(msg.sender, i);
             string memory tokenUri = tokenURI(tokenId);
-            nfts[i] = NFT(tokenId, tokenUri);
+            nfts[i] = NFT(
+                tokenId,
+                tokenUri,
+                woofySaleInfo[tokenId].price,
+                woofySaleInfo[tokenId].status
+            );
         }
         return nfts;
+    }
+
+    /* Puts WOOFY for sale */
+    function putForSale(uint256 _tokenID, uint256 _price) external isTokenIdValid(_tokenID) {
+        require(msg.sender == ownerOf(_tokenID), "SIGNER IS NOT OWNER OF THE TOKEN");
+        require(woofySaleInfo[_tokenID].status == NFT_STATUS.NOT_FOR_SALE, "TOKEN IS ALREADY FOR SALE.");
+        woofySaleInfo[_tokenID].status = NFT_STATUS.FOR_SALE;
+        woofySaleInfo[_tokenID].price = _price;
+    }
+
+    /* Cancels WOOFY sale */
+    function cancelSale(uint256 _tokenID) external isTokenIdValid(_tokenID) {
+        require(msg.sender == ownerOf(_tokenID), "SIGNER IS NOT OWNER OF THE TOKEN");
+        require(woofySaleInfo[_tokenID].status == NFT_STATUS.FOR_SALE, "TOKEN IS ALREADY NOT FOR SALE.");
+        woofySaleInfo[_tokenID].status = NFT_STATUS.NOT_FOR_SALE;
+    }
+
+    /* Buy WOOFY */
+    function buy(uint256 _tokenID) external payable isTokenIdValid(_tokenID) {
+        address ownerOfToken = ownerOf(_tokenID);
+        uint256 priceOfToken = woofySaleInfo[_tokenID].price;
+
+        require(msg.sender != ownerOfToken, "SIGNER IS ALREADY THE OWNER OF THE TOKEN");
+        require(woofySaleInfo[_tokenID].status == NFT_STATUS.FOR_SALE, "TOKEN IS NOT FOR SALE.");
+        require(msg.value == priceOfToken, strcat("INCORRECT VALUE SENT FOR PURCHASING; CORRECT VALUE: ", Strings.toString(priceOfToken)));
+        
+        (bool success, ) = payable(ownerOfToken).call{value: priceOfToken}("");
+        require(success, "OWNER COULD NOT BE PAID THE PRICE");
+        this.safeTransferFrom(ownerOfToken, msg.sender, _tokenID);
+
+        woofySaleInfo[_tokenID].status = NFT_STATUS.NOT_FOR_SALE;
     }
 
     /* OVERRIDES */
