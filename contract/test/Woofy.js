@@ -128,6 +128,17 @@ describe("Woofy NFT contract should perform correctly", () => {
         await expect(contractConnWithBuyer.buy(tokenId, { value: hre.ethers.utils.parseEther("1") })).to.be.revertedWith("SIGNER IS ALREADY THE OWNER OF THE TOKEN");
     })
 
+    it("Selling, cancelling and then buying should be handled correctly", async () => {
+        const [buyer, seller] = [signers[5], signers[6]];
+        const { tokenId } = await mintNft(seller, 0.01);
+        const contractConnWithSeller = await contract.connect(seller);
+        const contractConnWithBuyer = await contract.connect(buyer);
+
+        await contractConnWithSeller.putForSale(tokenId, hre.ethers.utils.parseEther("1"));
+        await contractConnWithSeller.cancelSale(tokenId);
+        await expect(contractConnWithBuyer.buy(tokenId, { value: hre.ethers.utils.parseEther("1") })).to.be.revertedWith("TOKEN IS NOT FOR SALE.");
+    })
+
     after("Cannot create more than specified number of WOOFYs", async () => {
         const currentSupply = await contract.totalSupply();
         const remaining = MAX_SUPPLY - currentSupply.toNumber();
