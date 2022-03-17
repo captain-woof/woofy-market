@@ -40,36 +40,37 @@ export default function Mint() {
                 </Box>
             </Flex>
 
-            <Divider marginY={{ base: "6", md: "unset" }} />
-
             {/* WOOFYs owned section */}
             {isConnected &&
-                <Box as="section" padding={{ base: "4", md: "8" }} maxWidth="5xl" marginX="auto" marginTop="2">
-                    <Heading size="3xl" textAlign="center" marginTop={{ base: "2", md: "unset" }}>Your WOOFYs</Heading>
+                <>
+                    <Divider marginY={{ base: "6", md: "unset" }} />
+                    <Box as="section" padding={{ base: "4", md: "8" }} maxWidth="5xl" marginX="auto" marginTop="2">
+                        <Heading size="3xl" textAlign="center" marginTop={{ base: "2", md: "unset" }}>Your WOOFYs</Heading>
 
-                    <Text marginTop={{ base: "4", md: "2" }} textAlign="center">
-                        {numOfWoofysOwned.isZero() ?
-                            "You don't own any WOOFYs yet!" :
-                            `You own ${numOfWoofysOwned.toString()}/${maxWoofysNum.toString()} WOOFYs.`
-                        }
-                    </Text>
+                        <Text marginTop={{ base: "4", md: "2" }} textAlign="center">
+                            {numOfWoofysOwned.isZero() ?
+                                "You don't own any WOOFYs yet!" :
+                                `You own ${numOfWoofysOwned.toString()}/${maxWoofysNum.toString()} WOOFYs.`
+                            }
+                        </Text>
 
-                    <Flex marginTop="6" paddingBottom="6" flexWrap="wrap">
-                        {progressFetchWoofys ?
-                            Array(3).fill(0).map((_, i) => (
-                                <Square key={i}>
-                                    <Skeleton width="full" height="full" flexGrow={1} />
-                                </Square>
-                            )) :
-                            woofysOwned.map(({ image, tokenId, price }) => (
-                                <Square key={tokenId.toString()}>
-                                    <Image src={`https://ipfs.io/ipfs/${image.split("ipfs://")[1]}`} alt={`WOOFY token number ${tokenId}, owned by you`} height="full" width="full" />
-                                    <Text position="absolute" top="4" right="6" color="gray.800">{ethers.utils.formatEther(price)} MATIC</Text>
-                                </Square>
-                            ))
-                        }
-                    </Flex>
-                </Box>
+                        <Flex marginTop="6" paddingBottom="6" flexWrap="wrap">
+                            {progressFetchWoofys ?
+                                Array(3).fill(0).map((_, i) => (
+                                    <Square key={i}>
+                                        <Skeleton width="full" height="full" flexGrow={1} />
+                                    </Square>
+                                )) :
+                                woofysOwned.map(({ image, tokenId, price }) => (
+                                    <Square key={tokenId.toString()}>
+                                        <Image src={`https://ipfs.io/ipfs/${image.split("ipfs://")[1]}`} alt={`WOOFY token number ${tokenId}, owned by you`} height="full" width="full" />
+                                        <Text position="absolute" top="4" right="6" color="gray.800">{ethers.utils.formatEther(price)} MATIC</Text>
+                                    </Square>
+                                ))
+                            }
+                        </Flex>
+                    </Box>
+                </>
             }
         </>
     )
