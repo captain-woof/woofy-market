@@ -1,9 +1,7 @@
 const { assert, expect } = require("chai");
-const { ethers } = require("hardhat");
 const fs = require("fs");
 const IPFS = require("ipfs-core");
 const path = require("path");
-const { BigNumber } = require("ethers");
 
 const PRICE = 0.01; // MATIC
 const COOLDOWN_PERIOD = 10; // secs
@@ -17,8 +15,8 @@ describe("Woofy NFT contract should perform correctly", () => {
     let nftImageBaseContent = null;
 
     // Function to mint NFT
-    async function mintNft(signer, valueInEth) {// Connect to contract from signer
-        const contractConnectedToSigner = await contract.connect(signer);
+    async function mintNft(signer, valueInEth, contractCustom = contract) {// Connect to contract from signer
+        const contractConnectedToSigner = await contractCustom.connect(signer);
         let txn = null;
 
         // Mint NFT and create NFT image file, then add it to IPFS
@@ -36,10 +34,10 @@ describe("Woofy NFT contract should perform correctly", () => {
 
     // Deploy contract, start an IPFS server, read NFT image and get signers, before anything else
     before(async () => {
-        const contractFactory = await ethers.getContractFactory("Woofy");
+        const contractFactory = await hre.ethers.getContractFactory("Woofy");
         contract = await contractFactory.deploy(PRICE_FORMATTED, COOLDOWN_PERIOD, MAX_SUPPLY);
         await contract.deployed();
-        signers = await ethers.getSigners();
+        signers = await hre.ethers.getSigners();
         ipfs = await IPFS.create();
         nftImageBaseContent = fs.readFileSync(path.join(__dirname, "../", "../", "nft-image-factory.txt"));
     });
@@ -84,7 +82,7 @@ describe("Woofy NFT contract should perform correctly", () => {
     })
 
     it("Signer's stored NFTs' metadata should return correctly", async () => {
-        const signer = signers[4];
+        const signer = signers[3];
         const { tokenId: tokenId1, nftImageIpfsPath: nftImageIpfsPath1 } = await mintNft(signer, 0.01);
         const { tokenId: tokenId2, nftImageIpfsPath: nftImageIpfsPath2 } = await mintNft(signer, 0.01);
         const contractConn = await contract.connect(signer);
@@ -102,7 +100,7 @@ describe("Woofy NFT contract should perform correctly", () => {
     })
 
     it("Selling and then buying should be handled correctly", async () => {
-        const [buyer, seller] = [signers[5], signers[6]];
+        const [buyer, seller] = [signers[4], signers[5]];
         const { tokenId } = await mintNft(seller, 0.01);
         const contractConnWithSeller = await contract.connect(seller);
         const contractConnWithBuyer = await contract.connect(buyer);
@@ -129,7 +127,7 @@ describe("Woofy NFT contract should perform correctly", () => {
     })
 
     it("Selling, cancelling and then buying should be handled correctly", async () => {
-        const [buyer, seller] = [signers[5], signers[6]];
+        const [buyer, seller] = [signers[4], signers[5]];
         const { tokenId } = await mintNft(seller, 0.01);
         const contractConnWithSeller = await contract.connect(seller);
         const contractConnWithBuyer = await contract.connect(buyer);
@@ -139,10 +137,46 @@ describe("Woofy NFT contract should perform correctly", () => {
         await expect(contractConnWithBuyer.buy(tokenId, { value: hre.ethers.utils.parseEther("1") })).to.be.revertedWith("TOKEN IS NOT FOR SALE.");
     })
 
+    it("WOOFYs for sale should return correctly", async () => {
+        const cf = await hre.ethers.getContractFactory("Woofy");
+        const c = await cf.deploy(PRICE_FORMATTED, COOLDOWN_PERIOD, MAX_SUPPLY);
+        await c.deployed();
+
+        const signer1 = signers[0];
+        const signer2 = signers[1];
+        const signer3 = signers[2];
+        const contractConn1 = await c.connect(signer1);
+        const contractConn2 = await c.connect(signer2);
+        const contractConn3 = await c.connect(signer3);
+
+        const nftsForSaleTotalInitial = await contractConn3.getAllNftsForSale();
+        assert.equal(nftsForSaleTotalInitial.length.toString(), "0", "Initial number of WOOFYs for sale is not 0!");
+
+        for (let i = 0; i < 3; i++) {
+            await mintNft(signer1, 0.01, c);
+        }
+        await contractConn1.putForSale(1, hre.ethers.utils.parseEther("1"));
+
+        for (let i = 0; i < 4; i++) {
+            await mintNft(signer2, 0.01, c);
+        }
+        await contractConn2.putForSale(4, hre.ethers.utils.parseEther("2"));
+
+        for (let i = 0; i < 2; i++) {
+            await mintNft(signer3, 0.01, c);
+        }
+        await contractConn3.putForSale(8, hre.ethers.utils.parseEther("2"));
+
+        const nftsForSaleTotal = await contractConn3.getAllNftsForSale();
+        const mftsForSaleNotOwned = nftsForSaleTotal.filter((nftForSale) => nftForSale.owner !== signer3.address);
+        assert.equal(nftsForSaleTotal.length.toString(), "3", "Number of WOOFYs for sale not returned correctly!");
+        assert.equal(mftsForSaleNotOwned.length.toString(), "2", "Number of WOOFYs for sale and not owned by signer not returned correctly!");
+    })
+
     after("Cannot create more than specified number of WOOFYs", async () => {
         const currentSupply = await contract.totalSupply();
         const remaining = MAX_SUPPLY - currentSupply.toNumber();
-        const signer = signers[8];
+        const signer = signers[5];
         for (let i = 0; i < remaining; i++) {
             await mintNft(signer, 0.01);
         }

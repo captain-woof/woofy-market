@@ -17,6 +17,7 @@ struct NFT {
     string tokenURI;
     uint256 price;
     NFT_STATUS status;
+    address owner;
 }
 
 struct NFT_SALE_INFO {

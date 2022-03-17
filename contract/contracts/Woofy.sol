@@ -27,7 +27,7 @@ contract Woofy is ERC721URIStorage, ERC721Enumerable, Ownable {
     mapping(uint256 => NFT_SALE_INFO) woofySaleInfo;
 
     /* Modifier to check if token id is valid (above 0) */
-    modifier isTokenIdValid(uint256 _tokenIdToCheck){
+    modifier isTokenIdValid(uint256 _tokenIdToCheck) {
         require(_tokenIdToCheck > 0, "INVALID TOKEN ID");
         _;
     }
@@ -148,24 +148,40 @@ contract Woofy is ERC721URIStorage, ERC721Enumerable, Ownable {
                 tokenId,
                 tokenUri,
                 woofySaleInfo[tokenId].price,
-                woofySaleInfo[tokenId].status
+                woofySaleInfo[tokenId].status,
+                msg.sender
             );
         }
         return nfts;
     }
 
     /* Puts WOOFY for sale */
-    function putForSale(uint256 _tokenID, uint256 _price) external isTokenIdValid(_tokenID) {
-        require(msg.sender == ownerOf(_tokenID), "SIGNER IS NOT OWNER OF THE TOKEN");
-        require(woofySaleInfo[_tokenID].status == NFT_STATUS.NOT_FOR_SALE, "TOKEN IS ALREADY FOR SALE.");
+    function putForSale(uint256 _tokenID, uint256 _price)
+        external
+        isTokenIdValid(_tokenID)
+    {
+        require(
+            msg.sender == ownerOf(_tokenID),
+            "SIGNER IS NOT OWNER OF THE TOKEN"
+        );
+        require(
+            woofySaleInfo[_tokenID].status == NFT_STATUS.NOT_FOR_SALE,
+            "TOKEN IS ALREADY FOR SALE."
+        );
         woofySaleInfo[_tokenID].status = NFT_STATUS.FOR_SALE;
         woofySaleInfo[_tokenID].price = _price;
     }
 
     /* Cancels WOOFY sale */
     function cancelSale(uint256 _tokenID) external isTokenIdValid(_tokenID) {
-        require(msg.sender == ownerOf(_tokenID), "SIGNER IS NOT OWNER OF THE TOKEN");
-        require(woofySaleInfo[_tokenID].status == NFT_STATUS.FOR_SALE, "TOKEN IS ALREADY NOT FOR SALE.");
+        require(
+            msg.sender == ownerOf(_tokenID),
+            "SIGNER IS NOT OWNER OF THE TOKEN"
+        );
+        require(
+            woofySaleInfo[_tokenID].status == NFT_STATUS.FOR_SALE,
+            "TOKEN IS ALREADY NOT FOR SALE."
+        );
         woofySaleInfo[_tokenID].status = NFT_STATUS.NOT_FOR_SALE;
     }
 
@@ -174,15 +190,53 @@ contract Woofy is ERC721URIStorage, ERC721Enumerable, Ownable {
         address ownerOfToken = ownerOf(_tokenID);
         uint256 priceOfToken = woofySaleInfo[_tokenID].price;
 
-        require(msg.sender != ownerOfToken, "SIGNER IS ALREADY THE OWNER OF THE TOKEN");
-        require(woofySaleInfo[_tokenID].status == NFT_STATUS.FOR_SALE, "TOKEN IS NOT FOR SALE.");
-        require(msg.value == priceOfToken, strcat("INCORRECT VALUE SENT FOR PURCHASING; CORRECT VALUE: ", Strings.toString(priceOfToken)));
-        
+        require(
+            msg.sender != ownerOfToken,
+            "SIGNER IS ALREADY THE OWNER OF THE TOKEN"
+        );
+        require(
+            woofySaleInfo[_tokenID].status == NFT_STATUS.FOR_SALE,
+            "TOKEN IS NOT FOR SALE."
+        );
+        require(
+            msg.value == priceOfToken,
+            strcat(
+                "INCORRECT VALUE SENT FOR PURCHASING; CORRECT VALUE: ",
+                Strings.toString(priceOfToken)
+            )
+        );
+
         (bool success, ) = payable(ownerOfToken).call{value: priceOfToken}("");
         require(success, "OWNER COULD NOT BE PAID THE PRICE");
         this.safeTransferFrom(ownerOfToken, msg.sender, _tokenID);
 
         woofySaleInfo[_tokenID].status = NFT_STATUS.NOT_FOR_SALE;
+    }
+
+    /* Fetches all WOOFYs for sale */
+    function getAllNftsForSale() public view returns (NFT[] memory) {
+        uint256 totalTokens = totalSupply();
+        NFT[] memory nfts = new NFT[](totalTokens);
+        uint256 tokenId;
+        uint256 arrIndex = 0;
+        for (tokenId = 1; tokenId <= totalTokens; tokenId++) {
+            if (woofySaleInfo[tokenId].status == NFT_STATUS.FOR_SALE) {
+                string memory tokenUri = tokenURI(tokenId);
+                nfts[arrIndex] = NFT(
+                    tokenId,
+                    tokenUri,
+                    woofySaleInfo[tokenId].price,
+                    woofySaleInfo[tokenId].status,
+                    ownerOf(tokenId)
+                );
+                arrIndex += 1;
+            }
+        }
+        NFT[] memory filteredNfts = new NFT[](arrIndex);
+        for(uint256 i = 0; i < arrIndex; i++){
+            filteredNfts[i] = nfts[i];
+        }
+        return filteredNfts;
     }
 
     /* OVERRIDES */
