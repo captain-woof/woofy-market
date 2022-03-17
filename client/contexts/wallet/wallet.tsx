@@ -6,8 +6,8 @@ import { dev } from "../../utils/log";
 
 export const WalletContext = createContext<WalletContext>({
     provider: null,
-    nftContract: null,
-    nftContractConnToSigner: null,
+    woofyContract: null,
+    woofyContractConnToSigner: null,
     signer: null,
     signerAddr: "",
     progress: false,
@@ -18,8 +18,8 @@ export const WalletContext = createContext<WalletContext>({
 
 export interface WalletContext {
     provider: ethers.providers.Web3Provider | null
-    nftContract: ethers.Contract | null
-    nftContractConnToSigner: ethers.Contract | null
+    woofyContract: ethers.Contract | null
+    woofyContractConnToSigner: ethers.Contract | null
     signer: ethers.Signer | null
     signerAddr: string
     progress: boolean
@@ -34,8 +34,8 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
 
     // WEB3
     const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
-    const [nftContract, setNftContract] = useState<ethers.Contract | null>(null);
-    const [nftContractConnToSigner, setNftContractConnToSigner] = useState<ethers.Contract | null>(null);
+    const [woofyContract, setWoofyContract] = useState<ethers.Contract | null>(null);
+    const [woofyContractConnToSigner, setWoofyContractConnToSigner] = useState<ethers.Contract | null>(null);
     const [signer, setSigner] = useState<ethers.Signer | null>(null);
     const [signerAddr, setSignerAddr] = useState<string>("");
     const [progress, setProgress] = useState<boolean>(false);
@@ -64,11 +64,11 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
                     const newSigner = newProvider.getSigner();
                     setSigner(newSigner);
 
-                    const newNftContract = new ethers.Contract(process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS as string, NFTContractInterface.abi, newProvider as ethers.providers.Provider);
-                    setNftContract(newNftContract);
+                    const newNftContract = new ethers.Contract(process.env.NEXT_PUBLIC_WOOFY_CONTRACT_ADDRESS as string, NFTContractInterface.abi, newProvider as ethers.providers.Provider);
+                    setWoofyContract(newNftContract);
 
                     const newNftConnToSigner = newNftContract.connect(newSigner as Signer);
-                    setNftContractConnToSigner(newNftConnToSigner);
+                    setWoofyContractConnToSigner(newNftConnToSigner);
 
                     toast({
                         title: typeOfSetup === "change" ? "ACCOUNT CHANGED" : "WALLET CONNECTED",
@@ -91,8 +91,8 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
             }
         } else {
             setProvider(null);
-            setNftContract(null);
-            setNftContractConnToSigner(null);
+            setWoofyContract(null);
+            setWoofyContractConnToSigner(null);
             setSigner(null);
             setSignerAddr("");
             toast({
@@ -121,7 +121,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
         } finally {
             setProgress(false);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // Setup provider and signer update listener
@@ -157,8 +157,8 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     return (
         <WalletContext.Provider value={{
             provider,
-            nftContract,
-            nftContractConnToSigner,
+            woofyContract,
+            woofyContractConnToSigner,
             signer,
             signerAddr,
             progress,

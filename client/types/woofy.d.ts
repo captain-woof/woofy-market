@@ -1,6 +1,11 @@
 import { BigNumber } from "ethers";
 
-export interface NFT {
+enum NFT_STATUS {
+    FOR_SALE,
+    NOT_FOR_SALE
+}
+
+export interface Woofy {
     tokenId: BigNumber;
     name: string;
     description: string;
@@ -10,4 +15,6 @@ export interface NFT {
         display_type: string;
     }>;
     image: string;
+    price: BigNumber;
+    owner: string;
 }

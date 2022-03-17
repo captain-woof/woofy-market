@@ -13,8 +13,8 @@ const NAV_LINKS = [
         url: "/list"
     },
     {
-        name: "Mint",
-        url: "/mint"
+        name: "Woofy",
+        url: "/woofy"
     }
 ]
 
