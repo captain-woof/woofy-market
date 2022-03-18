@@ -1,5 +1,6 @@
 import { Tab, TabList, TabPanel, TabPanels, Tabs, useColorModeValue } from "@chakra-ui/react";
 import { useWallet } from "../../../hooks/useWallet";
+import Buy from "./buy";
 import Mint from "./mint";
 import Sell from "./sell";
 
@@ -25,7 +26,7 @@ export default function Woofy() {
 
                 {/* Buy tab */}
                 <TabPanel>
-                    <div />
+                    <Buy />
                 </TabPanel>
 
                 {/* Sell tab */}

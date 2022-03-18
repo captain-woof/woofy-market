@@ -87,7 +87,6 @@ contract Woofy is ERC721URIStorage, ERC721Enumerable, Ownable {
             success,
             "CONTRACT OWNER COULD NOT BE TRANSFERRED THE PRICE FOR WOOFY!"
         );
-        approve(address(this), newTokenId);
 
         // Increment token id
         _tokenId.increment();
@@ -170,6 +169,7 @@ contract Woofy is ERC721URIStorage, ERC721Enumerable, Ownable {
         );
         woofySaleInfo[_tokenID].status = NFT_STATUS.FOR_SALE;
         woofySaleInfo[_tokenID].price = _price;
+        approve(address(this), _tokenID);
     }
 
     /* Cancels WOOFY sale */

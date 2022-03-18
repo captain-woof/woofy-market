@@ -109,7 +109,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     const handleConnect = useCallback(async () => {
         try {
             setProgress(true);
-            await window.ethereum.request({ method: "eth_requestAccounts" });
+            await window.ethereum?.request({ method: "eth_requestAccounts" });
         } catch (e: any) {
             if (e.message === "User rejected the request.") {
                 toast({
@@ -127,7 +127,7 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
     // Setup provider and signer update listener
     useEffect(() => {
         const handleAccountChange = async () => {
-            const [newSignerAddr] = await window.ethereum.request({ method: "eth_accounts" }) as Array<string>;
+            const [newSignerAddr] = await window.ethereum?.request({ method: "eth_accounts" }) as Array<string>;
 
             if (newSignerAddr !== signerAddr) {
                 if (!!newSignerAddr && newSignerAddr !== "") { // New account was selected
@@ -138,17 +138,19 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
                 }
             }
         }
-        window.ethereum.on("accountsChanged", handleAccountChange);
-        return () => { window.ethereum.removeListener("accountsChanged", handleAccountChange) };
+        window.ethereum?.on("accountsChanged", handleAccountChange);
+        return () => { window.ethereum?.removeListener("accountsChanged", handleAccountChange) };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [signerAddr])
 
     // Handle wallet pre-connection on page load if wallet is already connected
     useEffect(() => {
         (async () => {
-            const [newSignerAddr] = await window.ethereum.request({ method: "eth_accounts" }) as Array<string>;
-            if (!!newSignerAddr && newSignerAddr !== "") { // If wallet is pre-connected
-                await setup("connect");
+            if ("ethereum" in window) {
+                const [newSignerAddr] = await window.ethereum?.request({ method: "eth_accounts" }) as Array<string>;
+                if (!!newSignerAddr && newSignerAddr !== "") { // If wallet is pre-connected
+                    await setup("connect");
+                }
             }
         })()
         // eslint-disable-next-line react-hooks/exhaustive-deps

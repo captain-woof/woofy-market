@@ -53,6 +53,7 @@ const WoofysGrid = ({ woofysToDisplay, title, type }: { woofysToDisplay: Array<W
             const sellAmountNum = parseFloat(sellAmount);
             if (!isNaN(sellAmountNum) && sellAmountNum >= 0) {
                 await putForSale(woofySelected?.tokenId as BigNumber, sellAmount);
+                setSellAmount("0");
                 handleCloseDialog();
             } else {
                 toast({
@@ -101,6 +102,7 @@ const WoofysGrid = ({ woofysToDisplay, title, type }: { woofysToDisplay: Array<W
                             <Image src={`https://ipfs.io/ipfs/${woofyToDisplay.image.split("ipfs://")[1]}`} alt={`${title} - WOOFY token number ${woofyToDisplay.tokenId}`} marginTop="2" width="full" />
                             <Button colorScheme="brand" width="full" borderRadius="0" leftIcon={type === "not-sell" ? <SellIcon /> : <CancelIcon />} isLoading={(type === "not-sell" ? progressSell : progressCancel) && woofySelected?.tokenId.eq(woofyToDisplay.tokenId)} loadingText={type === "not-sell" ? "Selling" : "Cancelling"} onClick={() => {
                                 setWoofySelected(woofyToDisplay);
+                                setSellAmount(ethers.utils.formatEther(woofyToDisplay.price));
                                 setDialogVisible(true);
                             }}>{type === "not-sell" ? "Sell" : "Cancel"}</Button>
                         </Box>
@@ -121,7 +123,7 @@ const WoofysGrid = ({ woofysToDisplay, title, type }: { woofysToDisplay: Array<W
                             {type === "not-sell" &&
                                 <FormControl>
                                     <FormLabel>Selling price</FormLabel>
-                                    <Input colorScheme="brand" value={sellAmount} onChange={(e) => { setSellAmount(e.target.value) }} type="number" placeholder="XX.XX (MATIC)" />
+                                    <Input focusBorderColor="brand.500" value={sellAmount} onChange={(e) => { setSellAmount(e.target.value) }} type="number" placeholder="XX.XX (MATIC)" />
                                     <FormHelperText>Set the price <i>(in MATIC)</i> you want to sell this WOOFY for.</FormHelperText>
                                 </FormControl>
                             }
