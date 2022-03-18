@@ -1,9 +1,5 @@
 import { BigNumber } from "ethers";
-
-export enum NFT_STATUS {
-    FOR_SALE,
-    NOT_FOR_SALE
-}
+import { NFT_STATUS } from "../enums/woofy_sale_status";
 
 export interface Woofy {
     tokenId: BigNumber;

@@ -2,6 +2,7 @@ import { useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { BigNumber, ethers } from "ethers";
 import { createContext, ReactNode, useCallback, useEffect, useState } from "react"
+import { NFT_STATUS } from "../../enums/woofy_sale_status";
 import { useWallet } from "../../hooks/useWallet";
 import { Woofy } from "../../types/woofy";
 import { dev } from "../../utils/log";
@@ -15,6 +16,10 @@ interface WoofyContext {
     progressFetchWoofys: boolean,
     maxWoofysNum: BigNumber,
     woofyMintedsNum: BigNumber
+    progressSell: boolean,
+    putForSale: (tokenId: BigNumber, priceMatic: number | string) => Promise<void>,
+    cancelSale: (tokenId: BigNumber) => Promise<void>,
+    progressCancel: boolean
 }
 
 export const WoofyContext = createContext<WoofyContext>({
@@ -24,7 +29,11 @@ export const WoofyContext = createContext<WoofyContext>({
     woofysOwned: [],
     progressFetchWoofys: false,
     maxWoofysNum: BigNumber.from(0),
-    woofyMintedsNum: BigNumber.from(0)
+    woofyMintedsNum: BigNumber.from(0),
+    progressSell: false,
+    putForSale: async (tokenId, priceMatic) => { },
+    cancelSale: async (tokenId) => { },
+    progressCancel: false
 });
 
 export const WoofyProvider = ({ children }: { children: ReactNode }) => {
@@ -36,6 +45,8 @@ export const WoofyProvider = ({ children }: { children: ReactNode }) => {
     const [woofysOwned, setWoofysOwned] = useState<Array<Woofy>>([]);
     const [progressMintWoofy, setProgressMintWoofy] = useState<boolean>(false);
     const [progressFetchWoofys, setProgressFetchWoofys] = useState<boolean>(false);
+    const [progressSell, setProgressSell] = useState<boolean>(false);
+    const [progressCancel, setProgressCancel] = useState<boolean>(false);
 
     // SET NUM OF WOOFYs OWNED AND NUM OF WOOFYs IN CIRCULATION AND MAX
     useEffect(() => {
@@ -82,6 +93,7 @@ export const WoofyProvider = ({ children }: { children: ReactNode }) => {
         })()
     }, [numOfWoofysOwned, woofyContractConnToSigner, toast])
 
+    // Function to mint new WOOFY
     const mintWoofy = useCallback(async () => {
         if (isConnected && !!woofyContractConnToSigner) {
             try {
@@ -128,6 +140,67 @@ export const WoofyProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [woofyContractConnToSigner, isConnected, toast])
 
+    // Function to put WOOFY for sale
+    const putForSale = useCallback(async (tokenId: BigNumber, priceMatic: number | string) => {
+        if (!!woofyContractConnToSigner) {
+            try {
+                setProgressSell(true);
+                const price = ethers.utils.parseEther(priceMatic.toString());
+                const txn = await woofyContractConnToSigner.putForSale(tokenId, price);
+                await txn.wait();
+                setWoofysOwned((prevWoofysOwned) => (
+                    prevWoofysOwned.map((prevWoofyOwned) => (
+                        prevWoofyOwned.tokenId.eq(tokenId) ? { ...prevWoofyOwned, status: NFT_STATUS.FOR_SALE, price } : prevWoofyOwned
+                    ))
+                ));
+                toast({
+                    title: "ON SALE",
+                    description: "Your WOOFY has been listed for sale now!",
+                    status: "success"
+                });
+            } catch (e) {
+                dev.error(e);
+                toast({
+                    title: "ERROR",
+                    description: "An unexpected error occured while trying to purchase!",
+                    status: "error"
+                })
+            } finally {
+                setProgressSell(false);
+            }
+        }
+    }, [woofyContractConnToSigner, toast])
+
+    // Function to cancel WOOFY sale
+    const cancelSale = useCallback(async (tokenId: BigNumber) => {
+        if (!!woofyContractConnToSigner) {
+            try {
+                setProgressCancel(true);
+                const txn = await woofyContractConnToSigner.cancelSale(tokenId);
+                await txn.wait();
+                setWoofysOwned((prevWoofysOwned) => (
+                    prevWoofysOwned.map((prevWoofyOwned) => (
+                        prevWoofyOwned.tokenId.eq(tokenId) ? { ...prevWoofyOwned, status: NFT_STATUS.NOT_FOR_SALE } : prevWoofyOwned
+                    ))
+                ));
+                toast({
+                    title: "CANCELLED",
+                    description: "Your WOOFY has been de-listed for sale.",
+                    status: "success"
+                });
+            } catch (e) {
+                dev.error(e);
+                toast({
+                    title: "ERROR",
+                    description: "An unexpected error occured while trying to cancel!",
+                    status: "error"
+                })
+            } finally {
+                setProgressCancel(false);
+            }
+        }
+    }, [woofyContractConnToSigner, toast])
+
     return (
         <WoofyContext.Provider value={{
             mintWoofy,
@@ -136,7 +209,11 @@ export const WoofyProvider = ({ children }: { children: ReactNode }) => {
             woofysOwned,
             progressFetchWoofys,
             maxWoofysNum,
-            woofyMintedsNum
+            woofyMintedsNum,
+            progressSell,
+            putForSale,
+            cancelSale,
+            progressCancel
         }}>
             {children}
         </WoofyContext.Provider>
