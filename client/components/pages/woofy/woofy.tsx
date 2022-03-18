@@ -12,8 +12,8 @@ export default function Woofy() {
         <Tabs colorScheme={tabTextColor}>
             <TabList marginBottom="2" paddingX="16" marginTop="8">
                 <Tab minWidth={{ base: "auto", md: "24" }} flexGrow={{ base: 1, md: "unset" }}>Mint</Tab>
-                <Tab minWidth={{ base: "auto", md: "24" }} flexGrow={{ base: 1, md: "unset" }} disabled={!isConnected}>Buy</Tab>
-                <Tab minWidth={{ base: "auto", md: "24" }} flexGrow={{ base: 1, md: "unset" }} disabled={!isConnected}>Sell</Tab>
+                <Tab minWidth={{ base: "auto", md: "24" }} flexGrow={{ base: 1, md: "unset" }} isDisabled={!isConnected}>Buy</Tab>
+                <Tab minWidth={{ base: "auto", md: "24" }} flexGrow={{ base: 1, md: "unset" }} isDisabled={!isConnected}>Sell</Tab>
             </TabList>
 
             <TabPanels>

@@ -31,7 +31,7 @@ export default function Mint() {
                     <Text fontSize="2xl" fontWeight={800} marginTop="6" textAlign={{ base: "center", md: "start" }}>1 WFY = 0.1 MATIC</Text>
 
                     <Flex flexWrap="wrap" alignItems="center" gap={{ base: "4", md: "2" }} marginTop={{ base: "4", md: "2" }} width="fit-content" marginX={{ base: "auto", md: "unset" }} flexDirection={{ base: "column", md: "row" }}>
-                        <Button leftIcon={<BuyIcon size="24" />} colorScheme="brand" aria-label="Buy WOOFY for 0.1 matic" marginX={{ base: "auto", md: "unset" }} display="flex" onClick={mintWoofy} isLoading={progressMintWoofy} loadingText="Minting" disabled={maxWoofysNum.eq(woofyMintedsNum)} width="fit-content">Buy</Button>
+                        <Button leftIcon={<BuyIcon size="24" />} colorScheme="brand" aria-label="Buy WOOFY for 0.1 matic" marginX={{ base: "auto", md: "unset" }} display="flex" onClick={mintWoofy} isLoading={progressMintWoofy} loadingText="Minting" disabled={isConnected && maxWoofysNum.eq(woofyMintedsNum)} width="fit-content">Buy</Button>
 
                         {isConnected &&
                             <Text fontSize="md" color={highlightColor} textAlign={{ base: "center", md: "start" }}>{maxWoofysNum.sub(woofyMintedsNum).toString()} out of {maxWoofysNum.toString()} remaining!</Text>
