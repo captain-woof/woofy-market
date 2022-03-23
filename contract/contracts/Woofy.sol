@@ -13,8 +13,8 @@ import "./Utils.sol";
 contract Woofy is ERC721URIStorage, ERC721Enumerable, Ownable {
     /* STRUCTS */
     struct WoofyData {
-        uint256 tokenID;
-        string tokenURI;
+        uint256 tokenId;
+        string tokenUri;
         uint256 price;
         WOOFY_SALE_STATUS status;
         address owner;
@@ -49,7 +49,7 @@ contract Woofy is ERC721URIStorage, ERC721Enumerable, Ownable {
     /* Mapping to store info about new NFTs: whether their metadata should be changed */
     mapping(address => IdAndTime) newMintAddressToIdAndTime;
 
-    /* Mapping to store info about minted WoofyData's sale: maps tokenID to info */
+    /* Mapping to store info about minted WoofyData's sale: maps tokenId to info */
     mapping(uint256 => WoofySaleInfo) woofySaleInfo;
 
     /* Modifier to check if token id is valid (above 0) */
