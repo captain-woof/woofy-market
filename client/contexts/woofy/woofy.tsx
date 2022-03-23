@@ -91,13 +91,13 @@ export const WoofyProvider = ({ children }: { children: ReactNode }) => {
             if (!!woofyContractConnToSigner) {
                 try {
                     setProgressFetchWoofys(true);
-                    const newWoofysOwnedSerialized: Array<{ tokenID: BigNumber, tokenURI: string, price: BigNumber, owner: string, status: any }> = await woofyContractConnToSigner.getAllNftsOwned();
+                    const newWoofysOwnedSerialized: Array<{ tokenId: BigNumber, tokenUri: string, price: BigNumber, owner: string, status: any }> = await woofyContractConnToSigner.getAllNftsOwned();
                     const newWoofysOwned: Array<Woofy> = newWoofysOwnedSerialized.map((nftOwned) => ({
-                        tokenId: nftOwned.tokenID,
+                        tokenId: nftOwned.tokenId,
                         owner: nftOwned.owner,
                         price: nftOwned.price,
                         status: nftOwned.status,
-                        ...(JSON.parse((Buffer.from(nftOwned.tokenURI.split("base64,")[1], "base64")).toString()))
+                        ...(JSON.parse((Buffer.from(nftOwned.tokenUri.split("base64,")[1], "base64")).toString()))
                     }));
                     setWoofysOwned(newWoofysOwned);
                 } catch (e) {
@@ -254,15 +254,15 @@ export const WoofyProvider = ({ children }: { children: ReactNode }) => {
         if (!!woofyContractConnToSigner) {
             try {
                 setProgressGetAllWoofysForSaleByOthers(true);
-                const newWoofysForSaleSerialized: Array<{ tokenID: BigNumber, tokenURI: string, price: BigNumber, owner: string, status: any }> = await woofyContractConnToSigner.getAllNftsForSale();
+                const newWoofysForSaleSerialized: Array<{ tokenId: BigNumber, tokenUri: string, price: BigNumber, owner: string, status: any }> = await woofyContractConnToSigner.getAllNftsForSale();
                 const newWoofysForSaleByOthers: Array<Woofy> = newWoofysForSaleSerialized
                     .filter((newWoofyForSale) => !isStringsEqualCaseInsensitive(newWoofyForSale.owner, signerAddr))
                     .map((newWoofyForSaleByOthers) => ({
-                        tokenId: newWoofyForSaleByOthers.tokenID,
+                        tokenId: newWoofyForSaleByOthers.tokenId,
                         owner: newWoofyForSaleByOthers.owner,
                         price: newWoofyForSaleByOthers.price,
                         status: newWoofyForSaleByOthers.status,
-                        ...(JSON.parse((Buffer.from(newWoofyForSaleByOthers.tokenURI.split("base64,")[1], "base64")).toString()))
+                        ...(JSON.parse((Buffer.from(newWoofyForSaleByOthers.tokenUri.split("base64,")[1], "base64")).toString()))
                     }));
                 setWoofysForSaleByOthers(newWoofysForSaleByOthers);
             } catch (e) {
