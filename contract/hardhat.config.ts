@@ -1,5 +1,10 @@
-require("@nomiclabs/hardhat-waffle");
-require("dotenv").config();
+import '@typechain/hardhat';
+import '@nomiclabs/hardhat-ethers';
+import "@nomiclabs/hardhat-waffle";
+import dotenv from "dotenv"
+import { task } from "hardhat/config";
+
+dotenv.config();
 
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
@@ -18,7 +23,15 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.8.4",
+  solidity: {
+    version: "0.8.4",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 1000,
+      },
+    },
+  },
   networks: {
     matic: {
       url: "https://rpc-mumbai.maticvigil.com",
