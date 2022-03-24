@@ -7,7 +7,7 @@ const handler: NextApiHandler = async (req, res) => {
     try {
         const tokenId = req.query["tokenId"];
         if (isNaN(parseInt(tokenId as string))) throw new Error("INVALID WOOFY ID");
-        const woofyImageContents = fs.readFileSync("public/nft-image.svg");
+        const woofyImageContents = fs.readFileSync("public/woofy-image.svg");
         const woofyBaseImage = woofyImageContents.toString("utf-8");
         const woofyImage = woofyBaseImage.replace("# NUMBER", `#${tokenId}`);
         const cid = await putFileWeb3(woofyImage, `WOOFY-${tokenId}.svg`);

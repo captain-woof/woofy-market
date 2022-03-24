@@ -36,7 +36,7 @@ describe("Woofy NFT contract should perform correctly", () => {
         await contract.deployed();
         signers = await ethers.getSigners();
         ipfs = await IPFS.create();
-        nftImageBaseContent = fs.readFileSync(path.join(__dirname, "../", "../", "nft-image-factory.txt"));
+        nftImageBaseContent = fs.readFileSync(path.join(__dirname, "../", "woofy-image-factory.txt"));
     });
 
     it("Contract should have deployed correctly, with all constants initialized", async () => {
