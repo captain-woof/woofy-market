@@ -3,6 +3,7 @@ import '@nomiclabs/hardhat-ethers';
 import "@nomiclabs/hardhat-waffle";
 import dotenv from "dotenv"
 import { task } from "hardhat/config";
+import "hardhat-ethernal";
 
 dotenv.config();
 

@@ -10,8 +10,8 @@ const handler: NextApiHandler = async (req, res) => {
         const woofyImageContents = fs.readFileSync("public/woofy-image.svg");
         const woofyBaseImage = woofyImageContents.toString("utf-8");
         const woofyImage = woofyBaseImage.replace("# NUMBER", `#${tokenId}`);
-        const cid = await putFileWeb3(woofyImage, `WOOFY-${tokenId}.svg`);
-        res.status(200).json({ status: "SUCCESS", message: `${cid}/WOOFY-${tokenId}.svg` });
+        const cid = await putFileWeb3(woofyImage, `woofy-nft-${tokenId}.svg`, "image/svg");
+        res.status(200).json({ status: "SUCCESS", message: `${cid}/woofy-nft-${tokenId}.svg` });
     } catch (e) {
         console.log("ERROR WHILE CREATING NFT IMAGE", e);
         res.status(500).json({ status: "ERROR", message: e });

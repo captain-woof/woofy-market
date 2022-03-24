@@ -4,7 +4,7 @@ import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { BiPurchaseTagAlt as BuyIcon } from "react-icons/bi";
 import { useWallet } from "../../../hooks/useWallet";
 import { Woofy } from "../../../types/woofy";
-import { useWoofyContract } from "./useWoofyContract";
+import { useWoofyContract } from "../../../hooks/useWoofyContract";
 
 export default function Buy() {
     const { woofysForSaleByOthers } = useWoofyContract();
@@ -37,7 +37,7 @@ export default function Buy() {
 const BuyWoofsForSaleGrid = () => {
     const { progressGetAllWoofysForSaleByOthers, woofysForSaleByOthers, buyWoofyForSale, progressBuy } = useWoofyContract();
     const theme = useTheme();
-    const { woofyContractConnToSigner } = useWallet();
+    const { woofyContractConn } = useWoofyContract();
     const [dialogVisible, setDialogVisible] = useState<boolean>(false);
     const cancelButtonRef = useRef<HTMLButtonElement>(null);
     const [woofySelected, setWoofySelected] = useState<Woofy | null>(null);
@@ -50,12 +50,12 @@ const BuyWoofsForSaleGrid = () => {
 
     // Handles confirming sale
     const handleBuyButtonClick = useCallback(async () => {
-        if (!!woofyContractConnToSigner) {
+        if (!!woofyContractConn) {
             await buyWoofyForSale(woofySelected as Woofy);
             handleCloseDialog();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [woofyContractConnToSigner, woofySelected, toast])
+    }, [woofyContractConn, woofySelected, toast])
 
     return (
         <Box as="section" position="relative" width="full" padding={{ base: "2", md: "4" }} marginTop="6">

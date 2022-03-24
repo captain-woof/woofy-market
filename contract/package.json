@@ -24,8 +24,10 @@
     "@openzeppelin/contracts-upgradeable": "^4.5.2",
     "chai-as-promised": "^7.1.1",
     "dotenv": "^16.0.0",
+    "hardhat-ethernal": "^0.5.0",
     "ipfs-core": "^0.14.1",
-    "minimist": "^1.2.5"
+    "minimist": "^1.2.5",
+    "web3.storage": "^4.0.0"
   },
   "scripts": {
     "typechain": "pnpx hardhat clean && pnpx hardhat compile"

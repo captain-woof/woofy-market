@@ -1,9 +1,9 @@
-import { ethers } from "hardhat";
+import { ethers, ethernal } from "hardhat";
 import { Marketplace, NFT, Woofy } from "../../typechain-types";
-import * as IPFS from "ipfs-core";
 import { BigNumber } from "ethers";
 import { mintWoofy, putWoofyForSale } from "./utils_woofy";
 import { buyNftForSale, createIpfsFromCid, createJsonUriBase64, createNftContract, mintNft, putNftForSale } from "./utils_markeplace";
+import "hardhat-ethernal";
 
 let woofyContract: Woofy;
 let nftImplContract: NFT;
@@ -21,6 +21,10 @@ const deployWoofyContract = async () => {
         }
     );
     await woofyContract.deployed();
+    await ethernal.push({
+        name: "Woofy",
+        address: woofyContract.address
+    })
     return woofyContract;
 }
 
@@ -29,6 +33,10 @@ const deployNftImplContract = async () => {
     const nftImplContractFactory = await ethers.getContractFactory("NFT");
     const nftImplContract = await nftImplContractFactory.deploy();
     await nftImplContract.deployed();
+    await ethernal.push({
+        name: "NFT",
+        address: nftImplContract.address
+    })
     return nftImplContract;
 }
 
@@ -37,6 +45,10 @@ const deployMarketplaceContract = async (nftImplContractAddr: string, woofyContr
     const marketplaceContractFactory = await ethers.getContractFactory("Marketplace");
     const marketplaceContract = await marketplaceContractFactory.deploy(nftImplContractAddr, woofyContractAddr);
     await marketplaceContract.deployed();
+    await ethernal.push({
+        name: "Marketplace",
+        address: marketplaceContract.address
+    })
     return marketplaceContract;
 }
 
@@ -54,15 +66,14 @@ const fillWoofyWithDummyData = async () => {
     console.log("Filling Woofy contract with dummy data...");
 
     const [signer1, signer2] = await ethers.getSigners();
-    const ipfs = await IPFS.create();
     const tokenIds1: Array<BigNumber> = [];
     const tokenIds2: Array<BigNumber> = [];
 
     // Mint some WOOFYs
     for (let i = 0; i < 4; i++) {
-        const { tokenId: tokenId1 } = await mintWoofy(signer1, "0.1", woofyContract, ipfs);
+        const { tokenId: tokenId1 } = await mintWoofy(signer1, "0.1", woofyContract);
         tokenIds1.push(tokenId1);
-        const { tokenId: tokenId2 } = await mintWoofy(signer2, "0.1", woofyContract, ipfs);
+        const { tokenId: tokenId2 } = await mintWoofy(signer2, "0.1", woofyContract);
         tokenIds2.push(tokenId2);
     }
 

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "cd ../contract && rm -r ./artifacts && pnpx hardhat compile && cp ./artifacts/contracts/Woofy.sol/Woofy.json ../client/contracts/ && cd ../client && next dev",
+    "dev": "cd ../contract && pnpx hardhat compile && ls ./artifacts/contracts/*/*.json | grep -v \".dbg.json\" | xargs --replace={} cp {} ../client/contracts && cd ../client && cp -r ../contract/typechain-types ./ && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

@@ -5,7 +5,7 @@ import { BiPurchaseTagAlt as SellIcon } from "react-icons/bi";
 import { MdOutlineCancelPresentation as CancelIcon } from "react-icons/md";
 import { Woofy } from "../../../types/woofy";
 import { NFT_STATUS } from "../../../enums/woofy_sale_status";
-import { useWoofyContract } from "./useWoofyContract";
+import { useWoofyContract } from "../../../hooks/useWoofyContract";
 import { useWallet } from "../../../hooks/useWallet";
 
 export default function Sell() {
@@ -35,7 +35,7 @@ export default function Sell() {
 const WoofysGrid = ({ woofysToDisplay, title, type }: { woofysToDisplay: Array<Woofy>, title: string, type: "sell" | "not-sell" }) => {
     const { progressFetchWoofys, putForSale, progressSell, cancelSale, progressCancel } = useWoofyContract();
     const theme = useTheme();
-    const { woofyContractConnToSigner } = useWallet();
+    const { woofyContractConn } = useWoofyContract();
     const [dialogVisible, setDialogVisible] = useState<boolean>(false);
     const cancelButtonRef = useRef<HTMLButtonElement>(null);
     const [sellAmount, setSellAmount] = useState<string>("0");
@@ -49,7 +49,7 @@ const WoofysGrid = ({ woofysToDisplay, title, type }: { woofysToDisplay: Array<W
 
     // Handles confirming sale
     const handleSellButtonClick = useCallback(async () => {
-        if (!!woofyContractConnToSigner) {
+        if (!!woofyContractConn) {
             const sellAmountNum = parseFloat(sellAmount);
             if (!isNaN(sellAmountNum) && sellAmountNum >= 0) {
                 await putForSale(woofySelected?.tokenId as BigNumber, sellAmount);
@@ -64,16 +64,16 @@ const WoofysGrid = ({ woofysToDisplay, title, type }: { woofysToDisplay: Array<W
             }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [woofyContractConnToSigner, sellAmount, woofySelected, toast])
+    }, [woofyContractConn, sellAmount, woofySelected, toast])
 
     // Handles cancelling sale
     const handleCancelButtonClick = useCallback(async () => {
-        if (!!woofyContractConnToSigner) {
+        if (!!woofyContractConn) {
             await cancelSale(woofySelected?.tokenId as BigNumber);
             handleCloseDialog();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [woofyContractConnToSigner, woofySelected, toast])
+    }, [woofyContractConn, woofySelected, toast])
 
     return (
         <Box as="section" position="relative" width={{ base: "full", md: "50%" }} padding={{ base: "2", md: "4" }}>

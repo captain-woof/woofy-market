@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { ReactNode } from "react";
 import { BiPurchaseTagAlt as BuyIcon } from "react-icons/bi";
 import { useWallet } from "../../../hooks/useWallet";
-import { useWoofyContract } from "./useWoofyContract";
+import { useWoofyContract } from "../../../hooks/useWoofyContract";
 
 export default function Mint() {
     const { mintWoofy, progressMintWoofy, woofysOwned, numOfWoofysOwned, progressFetchWoofys, maxWoofysNum, woofyMintedsNum } = useWoofyContract();
