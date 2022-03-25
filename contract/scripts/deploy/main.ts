@@ -94,17 +94,17 @@ const fillMarketplaceWithDummyData = async () => {
     const { tokenId: tokenId1 } = await mintNft(nftContractAnimals, signers[0], createJsonUriBase64({
         name: "Deer",
         description: "A digital portrait of a deer, made with colored polygons.",
-        image: createIpfsFromCid("bafybeiegwhcb3vvwggsp7csj2zl5ay6sspvzf7o6xvgqacndqbrxyqgska")
+        image: createIpfsFromCid("bafybeiegwhcb3vvwggsp7csj2zl5ay6sspvzf7o6xvgqacndqbrxyqgska/deer.jpg")
     }));
     const { tokenId: tokenId2 } = await mintNft(nftContractAnimals, signers[0], createJsonUriBase64({
         name: "Tiger",
         description: "Colorful, artistic painting of a tiger.",
-        image: createIpfsFromCid("bafybeibc7mx5blw27wg4wsmtaosxzgkg2brvanv5yui3kgp2x5mqsmnvjy")
+        image: createIpfsFromCid("bafybeibc7mx5blw27wg4wsmtaosxzgkg2brvanv5yui3kgp2x5mqsmnvjy/tiger.jpg")
     }));
     const { tokenId: tokenId3 } = await mintNft(nftContractAnimals, signers[0], createJsonUriBase64({
         name: "Crane",
         description: "A simple drawing of a crane flying.",
-        image: createIpfsFromCid("bafybeifjjsuv6qoor34trhp6whvahgnbsi5qipug5mjnzscxwnhapyleo4")
+        image: createIpfsFromCid("bafybeifjjsuv6qoor34trhp6whvahgnbsi5qipug5mjnzscxwnhapyleo4/crane.jpg")
     }));
     await putNftForSale(nftContractAnimals, signers[0], tokenId1, 2);
     await putNftForSale(nftContractAnimals, signers[0], tokenId2, 3);
@@ -115,17 +115,17 @@ const fillMarketplaceWithDummyData = async () => {
     const { tokenId: tokenId4 } = await mintNft(nftContractCity, signers[0], createJsonUriBase64({
         name: "Alleyway",
         description: "An image of an alley.",
-        image: createIpfsFromCid("bafybeicxyqndalvcptx7e5kreuxiay4wxsvso4qbrm5lqmjzl6iriyeahe")
+        image: createIpfsFromCid("bafybeicxyqndalvcptx7e5kreuxiay4wxsvso4qbrm5lqmjzl6iriyeahe/city-1.jpg")
     }));
     const { tokenId: tokenId5 } = await mintNft(nftContractCity, signers[0], createJsonUriBase64({
         name: "Roadside",
         description: "A vintage image of an urban roadside; a car is parked in view.",
-        image: createIpfsFromCid("bafybeifjhv3nn3uidzanjdlfta4wmyzm5jtx2od4emas3ix6dpmti2skh4")
+        image: createIpfsFromCid("bafybeifjhv3nn3uidzanjdlfta4wmyzm5jtx2od4emas3ix6dpmti2skh4/city-2.jpg")
     }));
     const { tokenId: tokenId6 } = await mintNft(nftContractCity, signers[0], createJsonUriBase64({
         name: "Busy man",
         description: "A image of a man with a suitcase, walking in hurry.",
-        image: createIpfsFromCid("bafybeicvsc73ftp5isjrm6rxknpsta5bu7pm6m3fdrqfilo6rzwdkzsshq")
+        image: createIpfsFromCid("bafybeicvsc73ftp5isjrm6rxknpsta5bu7pm6m3fdrqfilo6rzwdkzsshq/city-3.jpg")
     }));
     await putNftForSale(nftContractCity, signers[0], tokenId4, 2);
     await putNftForSale(nftContractCity, signers[0], tokenId5, 3);
@@ -136,17 +136,17 @@ const fillMarketplaceWithDummyData = async () => {
     const { tokenId: tokenId7 } = await mintNft(nftContractScene, signers[1], createJsonUriBase64({
         name: "Waterfall",
         description: "A painting of a forest with a waterfall flowing over a cliff.",
-        image: createIpfsFromCid("bafybeiasjlieyuh37eop5cmv6fwqjskor7lteufryn4urxxzzxdvl2l2ni")
+        image: createIpfsFromCid("bafybeiasjlieyuh37eop5cmv6fwqjskor7lteufryn4urxxzzxdvl2l2ni/scene-1.jpg")
     }));
     const { tokenId: tokenId8 } = await mintNft(nftContractScene, signers[1], createJsonUriBase64({
         name: "Hill",
         description: "A painting of a hilly grassland, with a mountain in the distance. There's a waterfall between these.",
-        image: createIpfsFromCid("bafybeiba7jy3bu7zcghc3yvrdvckiarnafnsscmkqkdwj77wolgeayj4ty")
+        image: createIpfsFromCid("bafybeiba7jy3bu7zcghc3yvrdvckiarnafnsscmkqkdwj77wolgeayj4ty/scene-2.jpg")
     }));
     const { tokenId: tokenId9 } = await mintNft(nftContractScene, signers[1], createJsonUriBase64({
         name: "River",
         description: "A painting of a river flowing beside a mountain range.",
-        image: createIpfsFromCid("bafybeiajenmsnfuuhxfbrvw7kcasdvjzj6n7txbull45tnruhh3obu2kv4")
+        image: createIpfsFromCid("bafybeiajenmsnfuuhxfbrvw7kcasdvjzj6n7txbull45tnruhh3obu2kv4/scene-3.jpg")
     }));
     await putNftForSale(nftContractScene, signers[1], tokenId7, 2);
     await putNftForSale(nftContractScene, signers[1], tokenId8, 3);
