@@ -26,6 +26,7 @@ contract Marketplace is ReentrancyGuard, Ownable {
         string symbol;
         string description;
         address author;
+        address nftContractAddr;
         Nft[] nftsInCollection;
     }
 
@@ -111,7 +112,8 @@ contract Marketplace is ReentrancyGuard, Ownable {
         // Iterate over all contracts
         for (uint256 i = 0; i < totalNftContractsNum; i++) {
             // Get NFT collection
-            NFT nftContract = NFT(_nftContractAddrs.at(i));
+            address nftContractAddr = _nftContractAddrs.at(i);
+            NFT nftContract = NFT(nftContractAddr);
 
             // Get NFTs in collection
             (
@@ -131,6 +133,7 @@ contract Marketplace is ReentrancyGuard, Ownable {
                 nftContract.symbol(),
                 nftContract.description(),
                 nftContract.authorAddr(),
+                nftContractAddr,
                 nfts
             );
         }
@@ -164,7 +167,8 @@ contract Marketplace is ReentrancyGuard, Ownable {
             );
         uint256 index = 0;
         for (uint256 i = 0; i < totalNftContractsNum; i++) {
-            NFT nftContract = NFT(_nftContractAddrs.at(i));
+            address nftContractAddr = _nftContractAddrs.at(i);
+            NFT nftContract = NFT(nftContractAddr);
             uint256 balance = nftContract.balanceOf(msg.sender);
             if (balance > 0) {
                 // Get NFTs in collection
@@ -185,6 +189,7 @@ contract Marketplace is ReentrancyGuard, Ownable {
                     nftContract.symbol(),
                     nftContract.description(),
                     msg.sender,
+                    nftContractAddr,
                     nfts
                 );
 
@@ -220,7 +225,8 @@ contract Marketplace is ReentrancyGuard, Ownable {
             );
         uint256 index = 0;
         for (uint256 i = 0; i < totalNftContractsNum; i++) {
-            NFT nftContract = NFT(_nftContractAddrs.at(i));
+            address nftContractAddr = _nftContractAddrs.at(i);
+            NFT nftContract = NFT(nftContractAddr);
             uint256 nftsOnSaleNum = nftContract.getNftsOnSaleNum();
             if (nftsOnSaleNum > 0) {
                 // Get NFTs in collection
@@ -241,6 +247,7 @@ contract Marketplace is ReentrancyGuard, Ownable {
                     nftContract.symbol(),
                     nftContract.description(),
                     nftContract.authorAddr(),
+                    nftContractAddr,
                     nfts
                 );
 
@@ -274,7 +281,8 @@ contract Marketplace is ReentrancyGuard, Ownable {
             );
         uint256 index = 0;
         for (uint256 i = 0; i < totalNftContractsNum; i++) {
-            NFT nftContract = NFT(_nftContractAddrs.at(i));
+            address nftContractAddr = _nftContractAddrs.at(i);
+            NFT nftContract = NFT(nftContractAddr);
             if (nftContract.authorAddr() == msg.sender) {
                 // Get NFTs in collection
                 (
@@ -294,6 +302,7 @@ contract Marketplace is ReentrancyGuard, Ownable {
                     nftContract.symbol(),
                     nftContract.description(),
                     msg.sender,
+                    nftContractAddr,
                     nfts
                 );
 

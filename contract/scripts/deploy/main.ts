@@ -24,7 +24,7 @@ const deployWoofyContract = async () => {
     await ethernal.push({
         name: "Woofy",
         address: woofyContract.address
-    })
+    });
     return woofyContract;
 }
 
@@ -33,10 +33,6 @@ const deployNftImplContract = async () => {
     const nftImplContractFactory = await ethers.getContractFactory("NFT");
     const nftImplContract = await nftImplContractFactory.deploy();
     await nftImplContract.deployed();
-    await ethernal.push({
-        name: "NFT",
-        address: nftImplContract.address
-    })
     return nftImplContract;
 }
 
@@ -48,7 +44,7 @@ const deployMarketplaceContract = async (nftImplContractAddr: string, woofyContr
     await ethernal.push({
         name: "Marketplace",
         address: marketplaceContract.address
-    })
+    });
     return marketplaceContract;
 }
 
@@ -59,6 +55,7 @@ const deployAllContracts = async () => {
     nftImplContract = await deployNftImplContract();
     marketplaceContract = await deployMarketplaceContract(nftImplContract.address, woofyContract.address);
     console.table([["Woofy", woofyContract.address], ["NFT Implementation", nftImplContract.address], ["Marketplace", marketplaceContract.address]]);
+    return { woofyContract, nftImplContract, marketplaceContract };
 }
 
 // Function to fill Woofy contract with dummy data
@@ -157,11 +154,14 @@ const fillMarketplaceWithDummyData = async () => {
 // MAIN FUNC
 const main = async () => {
     try {
+        console.log("RESETTING ETHERNAL WORKSPACE...");
+        await ethernal.resetWorkspace("Hardhat Matic");
+
         await deployAllContracts();
         await fillWoofyWithDummyData();
         await fillMarketplaceWithDummyData();
 
-        console.log("\n\nSUCCESSFULLY DEPLOYED ALL CONTRACTS!");
+        console.log("\n\nALL READY!");
         process.exit(0);
     } catch (e) {
         console.log("ENCOUNTERED ERROR WHILE DEPLOYING!");
