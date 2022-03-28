@@ -21,11 +21,13 @@ export default function Home({ allNftCollections }: Home) {
             <Flex flexWrap="nowrap" width="full" marginTop="10" gap="4" overflowX="auto">
                 {allNftCollections.slice(0, 3).map((nftCollection, index) => (
                     <Box key={index} width={{ base: "60%", md: "33%" }} minWidth="64" backgroundColor="white">
-                        <Image alt={`${nftCollection.name} NFT Collection - ${nftCollection.description}`} src={decodeMetadataUri(nftCollection.nftsInCollection[0].metadataUri).image} width="full" />
-                        <Box padding="4">
-                            <Heading color="black">{nftCollection.name}</Heading>
-                            <Text color="black">{nftCollection.description}</Text>
-                        </Box>
+                        <Link passHref href={`/collections/${nftCollection.nftContractAddr}`}><a>
+                            <Image alt={`${nftCollection.name} NFT Collection - ${nftCollection.description}`} src={decodeMetadataUri(nftCollection.nftsInCollection[0].metadataUri).image} width="full" />
+                            <Box padding="4">
+                                <Heading color="black">{nftCollection.name}</Heading>
+                                <Text color="black">{nftCollection.description}</Text>
+                            </Box>
+                        </a></Link>
                     </Box>
                 ))}
             </Flex>
