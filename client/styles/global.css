@@ -1,0 +1,22 @@
+/* SCROLLBAR */
+body {
+    scrollbar-color: #f5b349;
+}
+
+::-webkit-scrollbar {
+    width: 0.75rem;
+    height: 0.6rem;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #f5b349;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #f0f0f0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #e7e6e6;
+}
+

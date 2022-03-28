@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "cd ../contract && pnpx hardhat compile && ls ./artifacts/contracts/*/*.json | grep -v \".dbg.json\" | xargs --replace={} cp {} ../client/contracts && cd ../client && cp -r ../contract/typechain-types ./ && next dev",
+    "dev": "cd ../contract && pnpx hardhat clean && pnpx hardhat compile && find ./artifacts/contracts/ -maxdepth 5 -name '*.json' | grep -v \".dbg.json\" | xargs --replace={} cp \"{}\" ../client/contracts && cd ../client && cp -r ../contract/typechain-types ./ && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -25,6 +25,8 @@
     "web3.storage": "^3.5.7"
   },
   "devDependencies": {
+    "@ethersproject/abi": "^5.6.0",
+    "@ethersproject/providers": "^5.6.1",
     "@types/node": "17.0.21",
     "@types/react": "17.0.40",
     "eslint": "8.11.0",

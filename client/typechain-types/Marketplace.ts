@@ -37,10 +37,12 @@ export declare namespace Marketplace {
     symbol: string;
     description: string;
     author: string;
+    nftContractAddr: string;
     nftsInCollection: Marketplace.NftStruct[];
   };
 
   export type NftCollectionStructOutput = [
+    string,
     string,
     string,
     string,
@@ -51,6 +53,7 @@ export declare namespace Marketplace {
     symbol: string;
     description: string;
     author: string;
+    nftContractAddr: string;
     nftsInCollection: Marketplace.NftStructOutput[];
   };
 }

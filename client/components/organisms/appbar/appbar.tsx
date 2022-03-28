@@ -9,8 +9,12 @@ import { useEffect, useState } from "react";
 
 const NAV_LINKS = [
     {
-        name: "List",
-        url: "/list"
+        name: "Collections",
+        url: "/collections"
+    },
+    {
+        name: "Create",
+        url: "/create"
     },
     {
         name: "Woofy",
