@@ -6,6 +6,8 @@ import { useWallet } from "../../../hooks/useWallet";
 import { Nft, NftCollection as INftCollection } from "../../../types/nft"
 import { getNftStatus, NftStatus } from "../../../utils/nft";
 import { isStringsEqualCaseInsensitive } from "../../../utils/string";
+import { MdLibraryAdd as AddNftIcon } from "react-icons/md";
+import MintNftDialog from "./mintNftDialog";
 
 interface NftCollection {
     nftCollection: INftCollection;
@@ -14,10 +16,11 @@ interface NftCollection {
 export default function NftCollection({ nftCollection: nftCollectionInitital }: NftCollection) {
     const { signerAddr } = useWallet();
     const [putNftForSaleDialogVisible, setPutNftForSaleDialogVisible] = useState<boolean>(false);
-    const { buyNft, cancelSaleNft, nftCollection, progressBuy, progressCancel, progressSale, putForSaleNft } = useNftCollection(nftCollectionInitital, setPutNftForSaleDialogVisible);
+    const { buyNft, cancelSaleNft, nftCollection, progressBuy, progressCancel, progressSale, putForSaleNft, progressMint, mintNft } = useNftCollection(nftCollectionInitital, setPutNftForSaleDialogVisible);
     const putNftForSaleCloseButtonRef = useRef<HTMLButtonElement | null>(null);
     const [nftForSaleAmount, setNftForSaleAmount] = useState<string>("");
     const [nftSelected, setNftSelected] = useState<Nft>();
+    const [mintNftDialogVisible, setMintNftDialogVisible] = useState<boolean>(false);
 
     // Handles closing 'Put nft for sale' dialog
     const handleNftForSaleDialogClose = useCallback(() => {
@@ -39,6 +42,19 @@ export default function NftCollection({ nftCollection: nftCollectionInitital }: 
             <Text marginTop="4">
                 {nftCollection.description}
             </Text>
+
+            {isStringsEqualCaseInsensitive(signerAddr, nftCollection.author) &&
+                <>
+                    <Button colorScheme="brand" rightIcon={<AddNftIcon size="24" />} marginLeft="auto" display="flex" justifyContent="center" alignItems="center" onClick={() => { setMintNftDialogVisible(true) }}>
+                        Mint
+                    </Button>
+                    <Text marginLeft="auto" textAlign="end" fontStyle="italic" fontWeight="500" fontSize="sm" marginTop="2">
+                        Only you (the collection author) can do this
+                    </Text>
+
+                    <MintNftDialog mintNftDialogVisible={mintNftDialogVisible} setMintNftDialogVisible={setMintNftDialogVisible} progressMint={progressMint} mintNft={mintNft} />
+                </>
+            }
 
             <Grid gap="6" templateColumns={{ base: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }} marginTop="8">
                 {nftCollection.nftsInCollection.map((nft) => {
@@ -77,7 +93,7 @@ export default function NftCollection({ nftCollection: nftCollectionInitital }: 
             </Grid>
 
             {/* PUT FOR SALE DIALOG */}
-            <AlertDialog isOpen={putNftForSaleDialogVisible} onClose={handleNftForSaleDialogClose} leastDestructiveRef={putNftForSaleCloseButtonRef} isCentered>
+            <AlertDialog isOpen={putNftForSaleDialogVisible} onClose={() => { setPutNftForSaleDialogVisible(false); }} leastDestructiveRef={putNftForSaleCloseButtonRef} isCentered>
                 <AlertDialogOverlay>
                     <AlertDialogContent>
 
@@ -98,7 +114,7 @@ export default function NftCollection({ nftCollection: nftCollectionInitital }: 
                         </AlertDialogBody>
 
                         <AlertDialogFooter gap="4">
-                            <Button ref={putNftForSaleCloseButtonRef} onClick={handleNftForSaleDialogClose}>Close</Button>
+                            <Button ref={putNftForSaleCloseButtonRef} onClick={() => { setPutNftForSaleDialogVisible(false); }}>Close</Button>
                             <Button colorScheme="brand" onClick={() => { putForSaleNft(nftSelected?.tokenId ?? "-1", nftForSaleAmount) }} isLoading={progressSale} loadingText="Putting for sale">
                                 Put for sale
                             </Button>

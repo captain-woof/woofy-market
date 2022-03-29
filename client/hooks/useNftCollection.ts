@@ -14,9 +14,17 @@ export const useNftCollection = (initialValue: NftCollection, setPutNftForSaleDi
     const nftCollectionContract = useMemo(() => (
         !!signer ? new Contract(initialValue.nftContractAddr, NftContractInterface.abi, signer) as NFT : null
     ), [signer, initialValue]);
+    const [progressMint, setProgressMint] = useState<boolean>(false);
     const [progressBuy, setProgressBuy] = useState<boolean>(false);
     const [progressSale, setProgressSale] = useState<boolean>(false);
     const [progressCancel, setProgressCancel] = useState<boolean>(false);
+
+    // Function to mint new NFT
+    const mintNft = useCallback(async (metadataUri: string) => {
+        if (!!nftCollectionContract) {
+            //await nftCollectionContract.mintNft()
+        }
+    }, [nftCollectionContract])
 
     // Function to buy NFT
     const buyNft = useCallback(async (tokenId: BigNumberish) => {
@@ -141,6 +149,8 @@ export const useNftCollection = (initialValue: NftCollection, setPutNftForSaleDi
         putForSaleNft,
         progressSale,
         progressCancel,
-        cancelSaleNft
+        cancelSaleNft,
+        progressMint,
+        mintNft
     })
 }

@@ -17,12 +17,15 @@
     "@metamask/providers": "^8.1.1",
     "axios": "^0.26.1",
     "ethers": "^5.6.0",
+    "formik": "^2.2.9",
     "framer-motion": "^6",
     "next": "12.1.0",
     "react": "17.0.2",
+    "react-cropper": "^2.1.8",
     "react-dom": "17.0.2",
     "react-icons": "^4.3.1",
-    "web3.storage": "^3.5.7"
+    "web3.storage": "^3.5.7",
+    "yup": "^0.32.11"
   },
   "devDependencies": {
     "@ethersproject/abi": "^5.6.0",
