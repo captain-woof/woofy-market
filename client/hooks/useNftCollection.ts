@@ -94,7 +94,7 @@ export const useNftCollection = (initialValue: NftCollection, setPutNftForSaleDi
                 }
             }
         }
-    }, [nftCollection, nftCollectionContract, toast])
+    }, [nftCollection, nftCollectionContract, toast, setPutNftForSaleDialogVisible])
 
     // Function to cancel an NFT on sale
     const cancelSaleNft = useCallback(async (tokenId: BigNumberish) => {
