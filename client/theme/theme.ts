@@ -7,7 +7,7 @@ const theme = extendTheme({
         heading: "'Bebas Neue', cursive"
     },
     config: {
-        initialColorMode: "light"
+        initialColorMode: "dark"
     },
     colors: {
         brand: {
