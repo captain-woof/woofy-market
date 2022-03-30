@@ -26,8 +26,8 @@ export default function Mint() {
                     {/* Purchase */}
                     <Heading size="3xl" textAlign={{ base: "center", md: "start" }}>Mint your WOOFY</Heading>
                     <Text marginTop="6"><b>Woofy</b> is a super-dog; he has the superpower of bestowing good luck. Mint your Woofy token and see your day instantly brighten!</Text>
-                    <Text color={highlightColor} marginTop="6">As a <Text as="span" fontWeight={700}>BONUS</Text>, pay a lower commission rate for selling your NFTs on the marketplace for every WOOFY you own!</Text>
-                    <Text marginTop="6" color={highlightColor} fontWeight={700}>There is an upper limit to the total number of WOOFYs that can be minted, after which the only way to get more WOOFYs is to buy them from people who have put theirs for sale!</Text>
+                    <Text color={highlightColor} marginTop="6" fontWeight={700}>Each WOOFY token you own decreases marketplace commission rate by 0.05% when making a sale!</Text>
+                    <Text marginTop="6" color={highlightColor} fontStyle="italic">There is an upper limit to the total number of WOOFYs that can be minted, after which the only way to get more WOOFYs is to buy them from people who have put theirs for sale!</Text>
                     <Text fontSize="2xl" fontWeight={800} marginTop="6" textAlign={{ base: "center", md: "start" }}>1 WFY = 0.1 MATIC</Text>
 
                     <Flex flexWrap="wrap" alignItems="center" gap={{ base: "4", md: "2" }} marginTop={{ base: "4", md: "2" }} width="fit-content" marginX={{ base: "auto", md: "unset" }} flexDirection={{ base: "column", md: "row" }}>

@@ -7,7 +7,10 @@ import { Nft, NftCollection as INftCollection } from "../../../types/nft"
 import { getIpfsFileUri, getNftStatus, NftStatus } from "../../../utils/nft";
 import { isStringsEqualCaseInsensitive } from "../../../utils/string";
 import { MdLibraryAdd as AddNftIcon } from "react-icons/md";
+import { FaExternalLinkAlt as LinkIcon } from "react-icons/fa";
 import MintNftDialog from "./mintNftDialog";
+import { useWoofyContract } from "../../../hooks/useWoofyContract";
+import Link from "next/link";
 
 interface NftCollection {
     nftCollection: INftCollection;
@@ -21,6 +24,7 @@ export default function NftCollection({ nftCollection: nftCollectionInitital }: 
     const [nftForSaleAmount, setNftForSaleAmount] = useState<string>("");
     const [nftSelected, setNftSelected] = useState<Nft>();
     const [mintNftDialogVisible, setMintNftDialogVisible] = useState<boolean>(false);
+    const { numOfWoofysOwned } = useWoofyContract();
 
     return (
         <Box as="main" padding={{ base: "4", md: "8" }} maxWidth="5xl" marginX="auto">
@@ -98,19 +102,20 @@ export default function NftCollection({ nftCollection: nftCollectionInitital }: 
 
                         <AlertDialogBody>
 
-                            <FormControl>
+                            <FormControl isRequired>
                                 <FormLabel>Selling price</FormLabel>
                                 <Input min="0" focusBorderColor="brand.500" value={nftForSaleAmount} onChange={(e) => { setNftForSaleAmount(e.target.value) }} type="number" placeholder="XX.XX (MATIC)" />
-                                <FormHelperText>Set the price <i>(in MATIC)</i> to sell this NFT for.</FormHelperText>
+                                <FormHelperText>Current marketplace commission: {3 - (numOfWoofysOwned.toNumber() * 0.05)}%</FormHelperText>
+                                <Link passHref href="/woofy"><a>
+                                    <Text marginTop="2" fontStyle="italic" fontWeight="600" fontSize="sm" color="brand.500">Buy more WOOFY tokens to decrease marketplace commission <LinkIcon display="inline" /></Text>
+                                </a></Link>
                             </FormControl>
-                            {/*!!woofySelected &&
-                                <Text fontStyle="italic" marginTop={type === "not-sell" ? "2" : "0"} fontSize="sm" fontWeight="600">{type === "not-sell" ? "Previously set" : "Listed for"}: {ethers.utils.formatEther(woofySelected?.price as BigNumber)} MATIC</Text>
-                            */}
+
                         </AlertDialogBody>
 
                         <AlertDialogFooter gap="4">
                             <Button ref={putNftForSaleCloseButtonRef} onClick={() => { setPutNftForSaleDialogVisible(false); }}>Close</Button>
-                            <Button colorScheme="brand" onClick={() => { putForSaleNft(nftSelected?.tokenId ?? "-1", nftForSaleAmount) }} isLoading={progressSale} loadingText="Putting for sale">
+                            <Button colorScheme="brand" onClick={() => { putForSaleNft(nftSelected?.tokenId ?? "-1", nftForSaleAmount) }} isLoading={progressSale} loadingText="Putting for sale" disabled={progressSale || (nftForSaleAmount === "")}>
                                 Put for sale
                             </Button>
                         </AlertDialogFooter>
