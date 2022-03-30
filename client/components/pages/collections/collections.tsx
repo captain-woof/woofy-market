@@ -3,7 +3,7 @@ import { useMarketplaceContract } from "../../../hooks/useMarketplaceContract"
 import { useWallet } from "../../../hooks/useWallet";
 import { Marketplace } from "../../../typechain-types";
 import Link from "next/link";
-import { decodeMetadataUri } from "../../../utils/nft";
+import { decodeMetadataUri, getIpfsFileUri } from "../../../utils/nft";
 
 export default function Collections() {
     const tabTextColor = useColorModeValue("black", "brand");
@@ -56,7 +56,7 @@ const NftCollections = ({ collectionsToDisplay }: NftCollections) => {
             {collectionsToDisplay.map((collectionToDisplay) => (
                 <GridItem key={collectionToDisplay.nftContractAddr} as="figure" width="full" backgroundColor="white" wordBreak="break-word">
                     <Link passHref href={`/collections/${collectionToDisplay.nftContractAddr}`}><a>
-                        <Image alt={`${collectionToDisplay.name} NFT Collection - ${collectionToDisplay.description}`} src={decodeMetadataUri(collectionToDisplay.nftsInCollection[0].metadataUri).image} width="full" />
+                        <Image alt={`${collectionToDisplay.name} NFT Collection - ${collectionToDisplay.description}`} src={getIpfsFileUri(decodeMetadataUri(collectionToDisplay.nftsInCollection[0].metadataUri).image as string)} width="full" />
                         <Box padding="4">
                             <Heading as="figcaption" color="black">{collectionToDisplay.name}</Heading>
                             <Text color="blackAlpha.500" fontWeight="700" fontSize="sm" fontStyle="italic">Author: {collectionToDisplay.author}</Text>

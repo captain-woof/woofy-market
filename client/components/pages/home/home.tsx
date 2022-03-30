@@ -1,6 +1,6 @@
 import { Box, Button, Flex, Heading, Image, Text } from "@chakra-ui/react"
 import { Marketplace } from "../../../typechain-types"
-import { decodeMetadataUri } from "../../../utils/nft"
+import { decodeMetadataUri, getIpfsFileUri } from "../../../utils/nft"
 import HighlightedText from "../../atoms/highlightedText"
 import Link from "next/link";
 import { MdOutlineCreate as CreateIcon } from "react-icons/md";
@@ -22,7 +22,7 @@ export default function Home({ allNftCollections }: Home) {
                 {allNftCollections.slice(0, 3).map((nftCollection, index) => (
                     <Box key={index} width={{ base: "60%", md: "33%" }} minWidth="64" backgroundColor="white">
                         <Link passHref href={`/collections/${nftCollection.nftContractAddr}`}><a>
-                            <Image alt={`${nftCollection.name} NFT Collection - ${nftCollection.description}`} src={decodeMetadataUri(nftCollection.nftsInCollection[0].metadataUri).image} width="full" />
+                            <Image alt={`${nftCollection.name} NFT Collection - ${nftCollection.description}`} src={getIpfsFileUri(decodeMetadataUri(nftCollection.nftsInCollection[0].metadataUri).image as string)} width="full" />
                             <Box padding="4">
                                 <Heading color="black">{nftCollection.name}</Heading>
                                 <Text color="black">{nftCollection.description}</Text>
