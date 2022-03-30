@@ -6,6 +6,10 @@ import NftContractInterface from "../contracts/NFT.json";
 import { useWallet } from "./useWallet";
 import { dev } from "../utils/log";
 import { useToast } from "@chakra-ui/react";
+import { putFileWeb3 } from "../utils/web3Storage";
+import { slugify } from "../utils/string";
+import { NftMintedEvent } from "../typechain-types/NFT";
+import { decodeMetadataUri } from "../utils/nft";
 
 export const useNftCollection = (initialValue: NftCollection, setPutNftForSaleDialogVisible: Dispatch<SetStateAction<boolean>>) => {
     const toast = useToast();
@@ -20,11 +24,58 @@ export const useNftCollection = (initialValue: NftCollection, setPutNftForSaleDi
     const [progressCancel, setProgressCancel] = useState<boolean>(false);
 
     // Function to mint new NFT
-    const mintNft = useCallback(async (metadataUri: string) => {
+    const mintNft = useCallback(async (name: string, description: string, image: Blob) => {
         if (!!nftCollectionContract) {
-            //await nftCollectionContract.mintNft()
+
+            try {
+                setProgressMint(true);
+                const filename = `${slugify(name)}.${image.type.split("/")[1]}`;
+                const cid = await putFileWeb3(image, filename, image.type);
+
+                const metadataJson = {
+                    name,
+                    description,
+                    image: `ipfs://${cid}/${filename}`
+                }
+                const metadataUri = `data:application/json;base64,${Buffer.from(JSON.stringify(metadataJson), "utf-8").toString("base64")}`;
+
+                const txn = await nftCollectionContract.mintNft(metadataUri);
+                const rcpt = await txn.wait();
+                const { args: { tokenId, tokenUri, mintedTo } }: NftMintedEvent = rcpt.events?.find((e) => e.event === "NftMinted") as NftMintedEvent;
+
+                setNftCollection((prev) => {
+                    if (!!prev.nftsInCollection.find((nft) => BigNumber.from(nft.tokenId).eq(tokenId))) {
+                        return prev;
+                    } else {
+                        const newNftCollection = { ...prev };
+                        newNftCollection.nftsInCollection.push({
+                            tokenId,
+                            tokenUri: decodeMetadataUri(tokenUri),
+                            tokenOwner: mintedTo,
+                            tokenPrice: "0"
+                        })
+                        return newNftCollection;
+                    }
+                });
+
+                toast({
+                    title: "SUCCESSFULLY MINTED NEW NFT!",
+                    description: "Your new NFT has been minted and added to this collection.",
+                    status: "success"
+                });
+
+            } catch (e) {
+                dev.error(e);
+                toast({
+                    title: "ERROR WHILE MINTING!",
+                    description: "Your new NFT could not be minted. Please try again.",
+                    status: "error"
+                });
+            } finally {
+                setProgressMint(false);
+            }
         }
-    }, [nftCollectionContract])
+    }, [nftCollectionContract, toast])
 
     // Function to buy NFT
     const buyNft = useCallback(async (tokenId: BigNumberish) => {

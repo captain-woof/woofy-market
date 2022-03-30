@@ -1,10 +1,10 @@
 import { AlertDialog, AlertDialogBody, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogOverlay, Box, Button, FormControl, FormHelperText, FormLabel, Grid, GridItem, Heading, Image, Input, Skeleton, Text } from "@chakra-ui/react";
 import { BigNumber, ethers } from "ethers";
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useNftCollection } from "../../../hooks/useNftCollection";
 import { useWallet } from "../../../hooks/useWallet";
 import { Nft, NftCollection as INftCollection } from "../../../types/nft"
-import { getNftStatus, NftStatus } from "../../../utils/nft";
+import { getIpfsFileUri, getNftStatus, NftStatus } from "../../../utils/nft";
 import { isStringsEqualCaseInsensitive } from "../../../utils/string";
 import { MdLibraryAdd as AddNftIcon } from "react-icons/md";
 import MintNftDialog from "./mintNftDialog";
@@ -21,11 +21,6 @@ export default function NftCollection({ nftCollection: nftCollectionInitital }: 
     const [nftForSaleAmount, setNftForSaleAmount] = useState<string>("");
     const [nftSelected, setNftSelected] = useState<Nft>();
     const [mintNftDialogVisible, setMintNftDialogVisible] = useState<boolean>(false);
-
-    // Handles closing 'Put nft for sale' dialog
-    const handleNftForSaleDialogClose = useCallback(() => {
-        setPutNftForSaleDialogVisible(false);
-    }, []);
 
     return (
         <Box as="main" padding={{ base: "4", md: "8" }} maxWidth="5xl" marginX="auto">
@@ -45,7 +40,7 @@ export default function NftCollection({ nftCollection: nftCollectionInitital }: 
 
             {isStringsEqualCaseInsensitive(signerAddr, nftCollection.author) &&
                 <>
-                    <Button colorScheme="brand" rightIcon={<AddNftIcon size="24" />} marginLeft="auto" display="flex" justifyContent="center" alignItems="center" onClick={() => { setMintNftDialogVisible(true) }}>
+                    <Button colorScheme="brand" rightIcon={<AddNftIcon size="24" />} marginLeft="auto" display="flex" justifyContent="center" alignItems="center" onClick={() => { setMintNftDialogVisible(true) }} isLoading={progressMint} loadingText="Minting">
                         Mint
                     </Button>
                     <Text marginLeft="auto" textAlign="end" fontStyle="italic" fontWeight="500" fontSize="sm" marginTop="2">
@@ -61,7 +56,7 @@ export default function NftCollection({ nftCollection: nftCollectionInitital }: 
                     const nftStatus = getNftStatus(signerAddr, nft);
                     return (
                         <GridItem key={nft.tokenId.toString()} as="figure" width="full" wordBreak="break-word" display="flex" flexDirection="column">
-                            <Image alt={`${nft.tokenUri.name} NFT - ${nft.tokenUri.description}`} src={nft.tokenUri.image} width="full" />
+                            <Image alt={`${nft.tokenUri.name} NFT - ${nft.tokenUri.description}`} src={getIpfsFileUri(nft.tokenUri.image as string)} width="full" fallback={<Skeleton width="full" height="20rem" />} />
                             <Box padding="4" backgroundColor="white" flexGrow="1">
                                 <Heading as="figcaption" color="black">{nft.tokenUri.name}</Heading>
                                 <Text color="blackAlpha.500" fontWeight="700" fontSize="sm" fontStyle="italic">Owner: {nft.tokenOwner}</Text>
@@ -124,7 +119,7 @@ export default function NftCollection({ nftCollection: nftCollectionInitital }: 
                 </AlertDialogOverlay>
             </AlertDialog>
 
-        </Box>
+        </Box >
     )
 }
 

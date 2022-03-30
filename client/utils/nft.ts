@@ -41,3 +41,8 @@ export const getNftStatus = (signerAddr: string, nft: Nft) => {
 
     return (isOwner ? (price.eq(0) ? NftStatus.OWN_NOT_FOR_SALE : NftStatus.OWN_FOR_SALE) : (price.eq(0) ? NftStatus.NOT_OWN_NOT_FOR_SALE : NftStatus.NOT_OWN_FOR_SALE))
 }
+
+// Function to return IPFS file uri
+export const getIpfsFileUri = (ipfsUri: string) => (
+    !ipfsUri.startsWith("ipfs://") ? ipfsUri : `https://ipfs.io/ipfs/${ipfsUri.split("ipfs://")[1]}`
+)
