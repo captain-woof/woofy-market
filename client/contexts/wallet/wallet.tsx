@@ -87,8 +87,8 @@ export const WalletProvider = ({ children }: { children: ReactNode }) => {
             });
             dev.log("WALLET DISCONNECTED");
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+
+    }, [toast])
 
     // Function that the Connect button will invoke
     const handleConnect = useCallback(async () => {
