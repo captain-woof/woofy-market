@@ -1,8 +1,9 @@
-import { ethers } from "hardhat";
+import { ethers, ethernal } from "hardhat";
 import { Marketplace, NFT, Woofy } from "../../typechain-types";
 import { BigNumber } from "ethers";
 import { mintWoofy, putWoofyForSale } from "./utils_woofy";
 import { buyNftForSale, createIpfsFromCid, createJsonUriBase64, createNftContract, mintNft, putNftForSale } from "./utils_markeplace";
+import "hardhat-ethernal";
 
 let woofyContract: Woofy;
 let nftImplContract: NFT;
@@ -15,8 +16,15 @@ const deployWoofyContract = async () => {
         ethers.utils.parseEther("0.1"), // Woofy const 0.1 matic to mint
         15 * 60, // 15 mins cooldown time
         50, // Max WOOFYs
+        {
+            value: ethers.utils.parseEther("2") // Loading contract with 2 matic
+        }
     );
     await woofyContract.deployed();
+    await ethernal.push({
+        name: "Woofy",
+        address: woofyContract.address
+    });
     return woofyContract;
 }
 
@@ -33,6 +41,10 @@ const deployMarketplaceContract = async (nftImplContractAddr: string, woofyContr
     const marketplaceContractFactory = await ethers.getContractFactory("Marketplace");
     const marketplaceContract = await marketplaceContractFactory.deploy(nftImplContractAddr, woofyContractAddr);
     await marketplaceContract.deployed();
+    await ethernal.push({
+        name: "Marketplace",
+        address: marketplaceContract.address
+    });
     return marketplaceContract;
 }
 
@@ -64,8 +76,8 @@ const fillWoofyWithDummyData = async () => {
 
     // Set some WOOFYs for sale
     for (let i = 0; i < 2; i++) {
-        await putWoofyForSale(woofyContract, tokenIds1[i], signer1, "0.5");
-        await putWoofyForSale(woofyContract, tokenIds2[i], signer2, "0.5");
+        await putWoofyForSale(woofyContract, tokenIds1[i], signer1, "3");
+        await putWoofyForSale(woofyContract, tokenIds2[i], signer2, "5");
     }
 }
 
@@ -92,9 +104,9 @@ const fillMarketplaceWithDummyData = async () => {
         image: createIpfsFromCid("bafybeifjjsuv6qoor34trhp6whvahgnbsi5qipug5mjnzscxwnhapyleo4/crane.jpg")
     }));
     await putNftForSale(nftContractAnimals, signers[0], tokenId1, 2);
-    await putNftForSale(nftContractAnimals, signers[0], tokenId2, 0.5);
+    await putNftForSale(nftContractAnimals, signers[0], tokenId2, 3);
     await putNftForSale(nftContractAnimals, signers[0], tokenId3, 5);
-    await buyNftForSale(nftContractAnimals, signers[1], tokenId2, 0.5);
+    await buyNftForSale(nftContractAnimals, signers[1], tokenId2, 3);
 
     const nftContractCity = await createNftContract(marketplaceContract, signers[0], "City", "CTY", "A collection of photographs of cities.");
     const { tokenId: tokenId4 } = await mintNft(nftContractCity, signers[0], createJsonUriBase64({
@@ -112,10 +124,10 @@ const fillMarketplaceWithDummyData = async () => {
         description: "A image of a man with a suitcase, walking in hurry.",
         image: createIpfsFromCid("bafybeicvsc73ftp5isjrm6rxknpsta5bu7pm6m3fdrqfilo6rzwdkzsshq/city-3.jpg")
     }));
-    await putNftForSale(nftContractCity, signers[0], tokenId4, 0.5);
+    await putNftForSale(nftContractCity, signers[0], tokenId4, 2);
     await putNftForSale(nftContractCity, signers[0], tokenId5, 3);
     await putNftForSale(nftContractCity, signers[0], tokenId6, 5);
-    await buyNftForSale(nftContractCity, signers[1], tokenId4, 0.5);
+    await buyNftForSale(nftContractCity, signers[1], tokenId4, 2);
 
     const nftContractScene = await createNftContract(marketplaceContract, signers[1], "Scenery", "SCN", "A collection of paintings of sceneries.");
     const { tokenId: tokenId7 } = await mintNft(nftContractScene, signers[1], createJsonUriBase64({
@@ -134,14 +146,17 @@ const fillMarketplaceWithDummyData = async () => {
         image: createIpfsFromCid("bafybeiajenmsnfuuhxfbrvw7kcasdvjzj6n7txbull45tnruhh3obu2kv4/scene-3.jpg")
     }));
     await putNftForSale(nftContractScene, signers[1], tokenId7, 2);
-    await putNftForSale(nftContractScene, signers[1], tokenId8, 0.5);
+    await putNftForSale(nftContractScene, signers[1], tokenId8, 3);
     await putNftForSale(nftContractScene, signers[1], tokenId9, 5);
-    await buyNftForSale(nftContractScene, signers[0], tokenId8, 0.5);
+    await buyNftForSale(nftContractScene, signers[0], tokenId8, 3);
 }
 
 // MAIN FUNC
 const main = async () => {
     try {
+        console.log("RESETTING ETHERNAL WORKSPACE...");
+        await ethernal.resetWorkspace("Hardhat Matic");
+
         await deployAllContracts();
         await fillWoofyWithDummyData();
         await fillMarketplaceWithDummyData();

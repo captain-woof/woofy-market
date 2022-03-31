@@ -21,17 +21,20 @@ const getWoofyBaseImage = () => {
 
 // Function to mint WOOFY
 export async function mintWoofy(signer: Signer, valueInEth: number | string, woofyContract: Woofy) {
+    console.log(`[+] Minting WOOFY`);
     const contractConnectedToSigner = woofyContract.connect(signer);
 
     // Mint NFT and create NFT image file, then add it to IPFS
-    const createWoofyTxn: ContractTransaction = await contractConnectedToSigner.createNFT({ value: ethers.utils.parseEther(valueInEth.toString()) });
+    let gasLimit = await contractConnectedToSigner.estimateGas.createNFT({ value: ethers.utils.parseEther(valueInEth.toString()) });
+    const createWoofyTxn: ContractTransaction = await contractConnectedToSigner.createNFT({ value: ethers.utils.parseEther(valueInEth.toString()), gasLimit });
     await createWoofyTxn.wait();
     const tokenId: BigNumber = await contractConnectedToSigner.getNewTokenId();
     const nftImageContent = getWoofyBaseImage().replace("# NUMBER", `#${tokenId.toString()}`);
 
     const cid = await web3Storage.put([new File([nftImageContent], `woofy-nft-${tokenId.toString()}.svg`, { type: "image/svg" })]);
     const path = `${cid}/woofy-nft-${tokenId.toString()}.svg`;
-    const txnSetMetadata: ContractTransaction = await contractConnectedToSigner.setNewTokenURI(`ipfs://${path}`);
+    gasLimit = await contractConnectedToSigner.estimateGas.setNewTokenURI(`ipfs://${path}`);
+    const txnSetMetadata: ContractTransaction = await contractConnectedToSigner.setNewTokenURI(`ipfs://${path}`, { gasLimit });
     await txnSetMetadata.wait();
 
     // Return
@@ -40,6 +43,8 @@ export async function mintWoofy(signer: Signer, valueInEth: number | string, woo
 
 // Function to put WOOFY for sale
 export async function putWoofyForSale(woofyContract: Woofy, tokenId: BigNumber, signer: Signer, priceInMatic: string | number) {
+    console.log(`[+] Putting WOOFY ${tokenId.toString()} for sale for ${priceInMatic} MATIC`);
     const contractConnectedToSigner = woofyContract.connect(signer);
-    await contractConnectedToSigner.putForSale(tokenId, ethers.utils.parseEther(priceInMatic.toString()));
+    const gasLimit = await contractConnectedToSigner.estimateGas.putForSale(tokenId, ethers.utils.parseEther(priceInMatic.toString()));
+    await contractConnectedToSigner.putForSale(tokenId, ethers.utils.parseEther(priceInMatic.toString()), { gasLimit });
 }

@@ -36,7 +36,7 @@ module.exports = {
   networks: {
     matic: {
       url: "https://rpc-mumbai.maticvigil.com",
-      accounts: [process.env.PRIVATE_KEY]
+      accounts: [process.env.PRIVATE_KEY_1, process.env.PRIVATE_KEY_2]
     }
   }
 };
