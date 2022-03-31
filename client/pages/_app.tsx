@@ -6,6 +6,7 @@ import { WalletProvider } from '../contexts/wallet/wallet';
 import { WoofyProvider } from '../contexts/woofy/woofy';
 import Marketplace from '../contexts/marketplace';
 import "../styles/global.css";
+import Footer from '../components/organisms/footer';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -15,6 +16,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           <Marketplace.MarketplaceProvider>
             <AppBar />
             <Component {...pageProps} />
+            <Footer />
           </Marketplace.MarketplaceProvider>
         </WoofyProvider>
       </WalletProvider>
