@@ -1,7 +1,13 @@
 import Create from "../components/pages/create";
+import Head from "next/head";
 
 export default function CreatePage() {
     return (
-        <Create />
+        <>  
+            <Head>
+                <title>Create new NFT collection</title>
+            </Head>
+            <Create />
+        </>
     )
 }

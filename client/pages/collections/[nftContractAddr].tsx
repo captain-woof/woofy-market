@@ -7,6 +7,7 @@ import { decodeMetadataUri } from "../../utils/nft";
 import { NftCollection as INftCollection } from "../../types/nft";
 import NftCollection, { NftCollectionSkeleton } from "../../components/pages/collections/nftCollection";
 import { useRouter } from "next/router";
+import Head from "next/head";
 
 let provider: ethers.providers.JsonRpcProvider;
 if (process.env.NODE_ENV === "development") {
@@ -68,8 +69,13 @@ export default function NftPage({ nftCollection }: InferGetStaticPropsType<typeo
     const router = useRouter();
 
     return (
-        router.isFallback ?
-            <NftCollectionSkeleton /> :
-            <NftCollection nftCollection={nftCollection} />
+        <>
+            <Head>
+                <title>{nftCollection?.name || "NFT"} collection</title>
+            </Head>
+            {router.isFallback ?
+                <NftCollectionSkeleton /> :
+                <NftCollection nftCollection={nftCollection} />}
+        </>
     )
 }

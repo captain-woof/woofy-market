@@ -4,6 +4,7 @@ import Home from '../components/pages/home';
 import { Marketplace } from '../typechain-types';
 import MarketplaceInterface from "../contracts/Marketplace.json";
 import { structureIntoNftColls } from '../utils/nft';
+import Head from "next/head";
 
 // Preload some preview NFT collections for homepage
 export const getStaticProps = async () => {
@@ -27,7 +28,12 @@ export const getStaticProps = async () => {
 
 const HomePage = ({ allNftCollections }: InferGetStaticPropsType<typeof getStaticProps>) => {
   return (
-    <Home allNftCollections={allNftCollections} />
+    <>
+      <Head>
+        <title>WOOFY Marketplace</title>
+      </Head>
+      <Home allNftCollections={allNftCollections} />
+    </>
   )
 }
 
