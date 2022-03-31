@@ -31,6 +31,11 @@ const HomePage = ({ allNftCollections }: InferGetStaticPropsType<typeof getStati
     <>
       <Head>
         <title>WOOFY Marketplace</title>
+        <meta property='og:title' content='WOOFY Marketplace' />
+        <meta name='twitter:title' content='WOOFY Marketplace' />
+        <meta name='description' content='An NFT marketplace - Mint, sell and buy NFTs on POLYGON at very low fees.' />
+        <meta property='og:description' content='An NFT marketplace - Mint, sell and buy NFTs on POLYGON at very low fees.' />
+        <meta name='twitter:description' content='An NFT marketplace - Mint, sell and buy NFTs on POLYGON at very low fees.' />
       </Head>
       <Home allNftCollections={allNftCollections} />
     </>

@@ -71,7 +71,12 @@ export default function NftPage({ nftCollection }: InferGetStaticPropsType<typeo
     return (
         <>
             <Head>
-                <title>{nftCollection?.name || "NFT"} collection</title>
+                <title>{nftCollection?.name || "NFTs"}</title>
+                <meta property='og:title' content={nftCollection?.name || "NFTs"} />
+                <meta name='twitter:title' content={nftCollection?.name || "NFTs"} />
+                <meta name='description' content={nftCollection?.description || "Buy and sell NFTs in this collection."} />
+                <meta property='og:description' content={nftCollection?.description || "Buy and sell NFTs in this collection."} />
+                <meta name='twitter:description' content={nftCollection?.description || "Buy and sell NFTs in this collection."} />
             </Head>
             {router.isFallback ?
                 <NftCollectionSkeleton /> :
