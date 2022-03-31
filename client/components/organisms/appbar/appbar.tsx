@@ -45,7 +45,7 @@ export default function AppBar() {
             {/* Nav links and menu */}
             {mounted &&
                 <Box marginLeft="auto">
-                    <HStack spacing="10" height="full">
+                    <HStack spacing="10" height="full" as="nav">
 
                         {/* Show navlinks for wider screens */}
                         <Show above="md">
