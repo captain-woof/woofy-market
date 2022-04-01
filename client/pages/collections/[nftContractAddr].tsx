@@ -60,7 +60,7 @@ export const getStaticProps = async (ctx: GetStaticPropsContext) => {
         props: {
             nftCollection
         },
-        revalidate: 10
+        revalidate: 4
     }
 }
 
